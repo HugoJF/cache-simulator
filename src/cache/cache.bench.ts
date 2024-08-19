@@ -1,5 +1,5 @@
 import {bench, describe} from "vitest";
-import {CacheSimulator} from "./cacheSimulator.ts";
+import {CacheSimulator} from "./cache-simulator.ts";
 import {CacheParameters} from "./cache-parameters.ts";
 import {Memory} from "./memory.ts";
 import {bigintToAddress} from "../helpers/address.ts";

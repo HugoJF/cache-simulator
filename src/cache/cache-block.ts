@@ -1,4 +1,4 @@
-import {CacheSimulator} from "./cacheSimulator.ts";
+import {CacheSimulator} from "./cache-simulator.ts";
 import {Address} from "./address.ts";
 import {range} from "../helpers/array.ts";
 import {CacheBlockAccess} from "./cache-block-access.ts";
