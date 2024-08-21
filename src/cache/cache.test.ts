@@ -41,7 +41,7 @@ test('cache reads underlying data properly', () => {
 
     const readData = cache.read(bigintToAddress(parameters, address));
 
-    expect(readData).toBe(data)
+    expect(readData.data).toBe(data)
 
     expect(cache.hits).toBe(0n)
     expect(cache.misses).toBe(1n)
