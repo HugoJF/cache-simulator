@@ -1,6 +1,5 @@
 import {CacheSimulator} from "./cache-simulator.ts";
 import {Address} from "./address.ts";
-import {range} from "../helpers/array.ts";
 import {CacheBlockAccess} from "./cache-block-access.ts";
 
 export class CacheBlock {
@@ -11,7 +10,7 @@ export class CacheBlock {
 
     constructor(private readonly cache: CacheSimulator) {
         this.tag = 0n;
-        this.data = range(Number(cache.parameters.wordsPerBlock)).fill(0n);
+        this.data = [];
     }
 
     getTag() {

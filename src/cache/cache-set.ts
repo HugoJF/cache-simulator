@@ -1,5 +1,4 @@
 import {Address} from "./address.ts";
-import {range} from "../helpers/array.ts";
 import {CacheSimulator} from "./cache-simulator.ts";
 import {CacheBlock} from "./cache-block.ts";
 import {CacheSetAccess} from "./cache-set-access.ts";
@@ -9,7 +8,10 @@ export class CacheSet {
 
     constructor(private cache: CacheSimulator) {
         // TODO assert associativity is a power of 2
-        this.blocks = range(Number(this.cache.parameters.blocksPerSet)).map(() => new CacheBlock(cache));
+        this.blocks = new Array(Number(this.cache.parameters.blocksPerSet))
+        for (let i = 0; i < this.blocks.length; i++) {
+            this.blocks[i] = (new CacheBlock(cache))
+        }
     }
 
     read(address: Address): CacheSetAccess {

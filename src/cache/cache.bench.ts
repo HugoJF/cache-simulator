@@ -4,7 +4,7 @@ import {CacheParameters} from "./cache-parameters.ts";
 import {Memory} from "./memory.ts";
 import {bigintToAddress} from "../helpers/address.ts";
 
-describe('cache performance', () => {
+describe('cache runtime performance', () => {
     const parameters = new CacheParameters(4n, 4n, 1n, 64n, 'LRU');
 
     const address1 = bigintToAddress(parameters, 0b000_11n);
@@ -26,4 +26,13 @@ describe('cache performance', () => {
     bench("memory reads", () => {
         cache.read(address1);
     }, {time: 2_000, warmupTime: 500})
+});
+
+describe('cache initialization performance', () => {
+    const memory = new Memory();
+
+    bench("cache initialization", () => {
+        const parameters = new CacheParameters(4096n, 128n, 128n, 64n, 'LRU');
+        new CacheSimulator(parameters, memory)
+    }, {warmupIterations: 3, iterations: 5})
 });

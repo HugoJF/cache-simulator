@@ -1,7 +1,6 @@
 import {DataStore} from "./data-store.ts";
 import {CacheParameters} from "./cache-parameters.ts";
 import {CacheSet} from "./cache-set.ts";
-import {range} from "../helpers/array.ts";
 import {assertNonFalsy} from "../helpers/assertions.ts";
 import {Address} from "./address.ts";
 import {CacheAccess} from "./cache-access.ts";
@@ -18,7 +17,10 @@ export class CacheSimulator {
         public readonly parameters: CacheParameters,
         public readonly underlying: DataStore,
     ) {
-        this.sets = range(Number(this.parameters.sets)).map(() => new CacheSet(this))
+        this.sets = new Array(Number(this.parameters.sets))
+        for (let i = 0; i < this.sets.length; i++) {
+            this.sets[i] = (new CacheSet(this))
+        }
     }
 
     getSetFromIndex(index: bigint): CacheSet {
