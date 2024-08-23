@@ -8,6 +8,9 @@ export class CacheBlock {
     tag: bigint;
     data: bigint[];
 
+    lastAccessedAt = 0n;
+    readAt = 0n;
+
     constructor(private readonly cache: CacheSimulator) {
         this.tag = 0n;
         this.data = [];
@@ -22,6 +25,7 @@ export class CacheBlock {
 
         if (this.valid && this.tag === address.tag) {
             this.cache.hits++;
+            this.lastAccessedAt = this.cache.getCycle();
             return {
                 data: this.data[Number(address.offset)],
                 hit: true,
@@ -31,6 +35,7 @@ export class CacheBlock {
 
         this.cache.misses++;
         const underlyingData = this.cache.underlying.read(address);
+        this.readAt = this.cache.getCycle();
         this.data[Number(address.offset)] = underlyingData;
         this.tag = address.tag;
         this.valid = true;

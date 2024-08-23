@@ -22,6 +22,10 @@ export class CacheSet {
         if (!block) {
             console.log(`Block not found for address 0x${address.raw.toString(16)}`)
             const replacement = this.getReplacementBlock();
+            // TODO assert
+            if (!replacement) {
+                throw new Error("No replacement block found");
+            }
             const replacedTag = replacement.getTag();
             const access = replacement.read(address);
 
@@ -67,12 +71,36 @@ export class CacheSet {
             return invalidBlock;
         }
 
-        // TODO implement policy
+        if (this.cache.parameters.policy === 'LRU') {
+            return this.getLruReplacementBlock();
+        }
+
+        if (this.cache.parameters.policy === 'FIFO') {
+            return this.getFifoReplacementBlock();
+        }
+
+        console.warn('Unknown replacement policy, falling back to random');
         const replacement = this.blocks.get(
             Math.floor(Math.random() * this.blocks.length),
         );
         assertNonFalsy(replacement, "Somehow we find a non-initialized block");
         return replacement as CacheBlock; // TODO type-guard
+    }
+
+    private getLruReplacementBlock() {
+        // TODO bigint -> Number conversion
+        const accessTimes = this.blocks.mapInitialized(block => block.lastAccessedAt).map(Number);
+        const minAccessTime = Math.min(...accessTimes);
+
+        return  this.blocks.findInitialized(block => Number(block.lastAccessedAt) === minAccessTime);
+    }
+
+    private getFifoReplacementBlock() {
+        // TODO bigint -> Number conversion
+        const readTimes = this.blocks.mapInitialized(block => block.readAt).map(Number);
+        const minReadTime = Math.min(...readTimes);
+
+        return this.blocks.findInitialized(block => Number(block.readAt) === minReadTime);
     }
 
     private findBlockFromTag(address: Address) {

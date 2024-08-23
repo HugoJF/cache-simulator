@@ -9,6 +9,8 @@ import {LazyArray} from "../lazy/array.ts";
 export class CacheSimulator {
     sets: LazyArray<CacheSet>;
 
+    cycle = 0n;
+
     reads = 0n;
     writes = 0n;
     hits = 0n;
@@ -22,6 +24,10 @@ export class CacheSimulator {
             Number(parameters.sets),
             () => new CacheSet(this),
         )
+    }
+
+    getCycle() {
+        return this.cycle;
     }
 
     getSetFromIndex(index: bigint): CacheSet {
