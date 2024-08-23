@@ -8,6 +8,8 @@ import {Memory} from "./cache/memory.ts";
 import {PowerOf2Input} from "./components/power-of-2-input.tsx";
 import {Select} from "antd";
 
+const ARCH = 64n;
+
 function App() {
     const [policy, setPolicy] = useState('LRU')
     const [sets, setSets] = useState(128n);
@@ -22,7 +24,7 @@ function App() {
         // console.log = () => undefined;
         const initStart = Date.now();
         const instructions = logs.map(log => BigInt(log.startAddress))
-        const parameters = new CacheParameters(sets, blocksPerSet, wordsPerBlock, 64n, policy as any);
+        const parameters = new CacheParameters(sets, blocksPerSet, wordsPerBlock, ARCH, policy as any);
         const memory = new Memory();
         const cache = new CacheSimulator(parameters, memory);
         const initEnd = Date.now();
@@ -75,6 +77,10 @@ function App() {
                     value={Number(wordsPerBlock)}
                     onChange={value => setWordsPerBlock(BigInt(value ?? 1))}
                 />
+            </div>
+            <div>
+                <span>capacity:</span>
+                {Number(sets * blocksPerSet * wordsPerBlock * ARCH / 8n)} bytes
             </div>
 
             <h2>performance metrics (strcmp dump)</h2>
