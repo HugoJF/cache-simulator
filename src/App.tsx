@@ -6,8 +6,10 @@ import {logs} from "./inputs/strcmp.ts";
 import {CacheSimulator} from "./cache/cache-simulator.ts";
 import {Memory} from "./cache/memory.ts";
 import {PowerOf2Input} from "./components/power-of-2-input.tsx";
+import {Select} from "antd";
 
 function App() {
+    const [policy, setPolicy] = useState('LRU')
     const [sets, setSets] = useState(128n);
     const [blocksPerSet, setBlocksPerSet] = useState(4n);
     const [wordsPerBlock, setWordsPerBlock] = useState(4n);
@@ -16,9 +18,11 @@ function App() {
     const [runTime, setRunTime] = useState<number>();
 
     const cache = useMemo(() => {
+        const log = console.log;
+        // console.log = () => undefined;
         const initStart = Date.now();
         const instructions = logs.map(log => BigInt(log.startAddress))
-        const parameters = new CacheParameters(sets, blocksPerSet, wordsPerBlock, 64n, 'LRU');
+        const parameters = new CacheParameters(sets, blocksPerSet, wordsPerBlock, 64n, policy as any);
         const memory = new Memory();
         const cache = new CacheSimulator(parameters, memory);
         const initEnd = Date.now();
@@ -31,12 +35,26 @@ function App() {
         const runEnd = Date.now();
         setRunTime(runEnd - runStart);
 
+        console.log = log;
+
         return cache;
-    }, [sets, blocksPerSet, wordsPerBlock])
+    }, [policy, sets, blocksPerSet, wordsPerBlock])
 
     return (
         <>
             <h2>cache parameters</h2>
+            <div>
+                <span>policy:</span>
+                <Select
+                    value={policy}
+                    onChange={value => setPolicy(value)}
+                    options={[
+                        {label: 'LRU', value: 'LRU'},
+                        {label: 'FIFO', value: 'FIFO'},
+                        {label: 'Random', value: 'Random'},
+                    ]}
+                />
+            </div>
             <div>
                 <span>sets:</span>
                 <PowerOf2Input
