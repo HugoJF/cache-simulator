@@ -36,6 +36,7 @@ export class CacheBlock {
         this.cache.misses++;
         const underlyingData = this.cache.underlying.read(address);
         this.readAt = this.cache.getCycle();
+        this.lastAccessedAt = this.cache.getCycle();
         // TODO read more data
         this.data[Number(address.offset)] = underlyingData;
         this.tag = address.tag;
