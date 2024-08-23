@@ -2,20 +2,21 @@ import {Address} from "./address.ts";
 import {CacheSimulator} from "./cache-simulator.ts";
 import {CacheBlock} from "./cache-block.ts";
 import {CacheSetAccess} from "./cache-set-access.ts";
+import {LazyArray} from "../lazy/array.ts";
+import {assertNonFalsy} from "../helpers/assertions.ts";
 
 export class CacheSet {
-    blocks: CacheBlock[];
+    blocks: LazyArray<CacheBlock>;
 
     constructor(private cache: CacheSimulator) {
-        // TODO assert associativity is a power of 2
-        this.blocks = new Array(Number(this.cache.parameters.blocksPerSet))
-        for (let i = 0; i < this.blocks.length; i++) {
-            this.blocks[i] = (new CacheBlock(cache))
-        }
+        this.blocks = new LazyArray(
+            Number(this.cache.parameters.blocksPerSet),
+            () => new CacheBlock(cache),
+        )
     }
 
     read(address: Address): CacheSetAccess {
-        console.log(`Reading address 0x${address.raw.toString(16)} tags available: ${this.blocks.map(block => block.getTag())}`);
+        console.log(`Reading address 0x${address.raw.toString(16)} tags available: ${this.blocks.mapInitialized(block => block.getTag())}`);
         const block = this.findBlockFromTag(address);
 
         if (!block) {
@@ -28,7 +29,7 @@ export class CacheSet {
                 data: access.data,
                 replaced: true,
                 replacedTag: replacedTag,
-                tagsAvailable: this.blocks.map(block => block.getTag()),
+                tagsAvailable: this.blocks.mapInitialized(block => block.getTag()),
                 address: address.raw,
                 blockAccess: access,
             }
@@ -41,7 +42,7 @@ export class CacheSet {
             data: access.data,
             replaced: false,
             replacedTag: null,
-            tagsAvailable: this.blocks.map(block => block.getTag()),
+            tagsAvailable: this.blocks.mapInitialized(block => block.getTag()),
             address: address.raw,
             blockAccess: access,
         }
@@ -56,19 +57,28 @@ export class CacheSet {
     }
 
     private getReplacementBlock() {
-        const invalidBlock = this.blocks.find(block => !block.valid);
+        const uninitializedBlock = this.blocks.findUninitialized();
+        if (uninitializedBlock) {
+            return uninitializedBlock;
+        }
+
+        const invalidBlock = this.blocks.findInitialized(block => !block.valid);
         if (invalidBlock) {
             return invalidBlock;
         }
 
         // TODO implement policy
-        return this.blocks[
-            Math.floor(Math.random() * this.blocks.length)
-            ];
+        const replacement = this.blocks.get(
+            Math.floor(Math.random() * this.blocks.length),
+        );
+        assertNonFalsy(replacement, "Somehow we find a non-initialized block");
+        return replacement as CacheBlock; // TODO type-guard
     }
 
     private findBlockFromTag(address: Address) {
-        const block = this.blocks.filter(block => block.valid).find(block => block.getTag() === address.tag);
+        const block = this.blocks.findInitialized(block => (
+            block.valid && block.getTag() === address.tag
+        ));
 
         if (!block) {
             return undefined;
