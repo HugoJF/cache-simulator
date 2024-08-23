@@ -37,6 +37,7 @@ export class CacheSimulator {
 
 
     read(address: Address): CacheAccess {
+        this.cycle++;
         console.log(`Reading address 0x${address.raw.toString(16)} in set ${address.index}`);
 
         const set = this.getSetFromIndex(address.index);
