@@ -2,15 +2,20 @@ import {useMemo, useState} from 'react'
 import './App.css'
 import {bigintToAddress} from "./helpers/address.ts";
 import {CacheParameters} from "./cache/cache-parameters.ts";
-import {logs} from "./inputs/strcmp.ts";
 import {CacheSimulator} from "./cache/cache-simulator.ts";
 import {Memory} from "./cache/memory.ts";
 import {PowerOf2Input} from "./components/power-of-2-input.tsx";
-import {Select} from "antd";
+import {Select, UploadProps} from "antd";
+import Dragger from "antd/lib/upload/Dragger";
+import {InboxOutlined} from "@ant-design/icons";
+import {RcFile} from "antd/lib/upload";
 
 const ARCH = 64n;
 
 function App() {
+    const [program, setProgram] = useState<any[]>([]);
+    const [files, setFiles] = useState<RcFile[]>([]);
+
     const [policy, setPolicy] = useState('LRU')
     const [sets, setSets] = useState(128n);
     const [blocksPerSet, setBlocksPerSet] = useState(4n);
@@ -19,11 +24,21 @@ function App() {
     const [initializationTime, setInitializationTime] = useState<number>();
     const [runTime, setRunTime] = useState<number>();
 
+    const uploaderProps: UploadProps = {
+        name: 'file',
+        fileList: files,
+        beforeUpload: async (file) => {
+            setFiles([file])
+            const raw = await file.text();
+            setProgram(JSON.parse(raw))
+        },
+    };
+
     const cache = useMemo(() => {
         const log = console.log;
         // console.log = () => undefined;
         const initStart = Date.now();
-        const instructions = logs.map(log => BigInt(log.startAddress))
+        const instructions = program.map(log => BigInt(log.startAddress))
         const parameters = new CacheParameters(sets, blocksPerSet, wordsPerBlock, ARCH, policy as any);
         const memory = new Memory();
         const cache = new CacheSimulator(parameters, memory);
@@ -40,10 +55,26 @@ function App() {
         console.log = log;
 
         return cache;
-    }, [policy, sets, blocksPerSet, wordsPerBlock])
+    }, [program, policy, sets, blocksPerSet, wordsPerBlock])
 
     return (
         <>
+
+            <a
+                href="https://cache-simulator-tracergrind-parser.netlify.app/"
+                target="_blank"
+            >
+                Text dump parser link
+            </a>
+            <Dragger {...uploaderProps}>
+                <p className="ant-upload-drag-icon">
+                    <InboxOutlined/>
+                </p>
+                <p className="ant-upload-text">Click or drag file to start parsing</p>
+                <p className="ant-upload-hint">
+                    Only TracerGrind texttrace dumps are supported!
+                </p>
+            </Dragger>
             <h2>cache parameters</h2>
             <div>
                 <span>policy:</span>
@@ -83,7 +114,7 @@ function App() {
                 {Number(sets * blocksPerSet * wordsPerBlock * ARCH / 8n)} bytes
             </div>
 
-            <h2>performance metrics (strcmp dump)</h2>
+            <h2>performance metrics ({files[0]?.name})</h2>
             <p>reads: {cache.reads.toString()}</p>
             <p>writes: {cache.writes.toString()}</p>
             <p>hits: {cache.hits.toString()}</p>
