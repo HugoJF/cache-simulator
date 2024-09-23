@@ -1,128 +1,116 @@
-import {useMemo, useState} from 'react'
 import './App.css'
-import {bigintToAddress} from "./helpers/address.ts";
+import {useMemo, useReducer, useState} from 'react'
 import {CacheParameters} from "./cache/cache-parameters.ts";
-import {CacheSimulator} from "./cache/cache-simulator.ts";
-import {Memory} from "./cache/memory.ts";
-import {PowerOf2Input} from "./components/power-of-2-input.tsx";
-import {Select, UploadProps} from "antd";
-import Dragger from "antd/lib/upload/Dragger";
-import {InboxOutlined} from "@ant-design/icons";
-import {RcFile} from "antd/lib/upload";
-
-const ARCH = 64n;
+import {Header} from "./components/header.tsx";
+import useInterval from "use-interval";
+import {CACHE_CONFIGURATIONS} from "./constants/configurations.ts";
+import CacheAccessHistory from "./components/cache-access-history.tsx";
+import CacheState from "./components/cache-state.tsx";
+import {StatusBar} from "./components/status-bar";
+import {FileManagerModal} from "./components/file-manager-modal";
+import {SettingsModal} from "./components/settings-modal";
+import {CacheRunner} from "./cache/cache-runner.ts";
+import {PROGRAMS} from "./constants/programs.ts";
+import {Tabs} from "antd";
 
 function App() {
-    const [program, setProgram] = useState<any[]>([]);
-    const [files, setFiles] = useState<RcFile[]>([]);
+    // re-render function hook
+    const [, rerender] = useReducer((x) => x + 1, 0);
+    const [parameters, setParameters] = useState<CacheParameters[]>(CACHE_CONFIGURATIONS[0]);
+    const [program, setProgram] = useState<string[]>(PROGRAMS["strcmp.out"]);
+    const [cacheIndex, setCacheIndex] = useState(0);
 
-    const [policy, setPolicy] = useState('LRU')
-    const [sets, setSets] = useState(128n);
-    const [blocksPerSet, setBlocksPerSet] = useState(4n);
-    const [wordsPerBlock, setWordsPerBlock] = useState(4n);
+    const [running, setRunning] = useState(false);
 
-    const [initializationTime, setInitializationTime] = useState<number>();
-    const [runTime, setRunTime] = useState<number>();
+    const [fileManagerOpen, setFileManagerOpen] = useState(false);
+    const [settingsOpen, setSettingsOpen] = useState(false);
 
-    const uploaderProps: UploadProps = {
-        name: 'file',
-        fileList: files,
-        beforeUpload: async (file) => {
-            setFiles([file])
-            const raw = await file.text();
-            setProgram(JSON.parse(raw))
-        },
-    };
+    const instructions = useMemo(() => {
+        return program.map(log => BigInt(log))
+    }, [program]);
 
-    const cache = useMemo(() => {
-        const log = console.log;
-        // console.log = () => undefined;
-        const initStart = Date.now();
-        const instructions = program.map(log => BigInt(log.startAddress))
-        const parameters = new CacheParameters(sets, blocksPerSet, wordsPerBlock, ARCH, policy as any);
-        const memory = new Memory();
-        const cache = new CacheSimulator(parameters, memory);
-        const initEnd = Date.now();
-        setInitializationTime(initEnd - initStart);
+    const runner = useMemo(() => {
+        return new CacheRunner(parameters, instructions);
+    }, [parameters, instructions])
 
-        const runStart = Date.now();
-        instructions.forEach(instruction => {
-            cache.read(bigintToAddress(parameters, instruction));
-        });
-        const runEnd = Date.now();
-        setRunTime(runEnd - runStart);
+    function step() {
+        rerender();
+        runner.step();
 
-        console.log = log;
+        return true
+    }
 
-        return cache;
-    }, [program, policy, sets, blocksPerSet, wordsPerBlock])
+    async function fastForward() {
+        rerender();
+        runner.run();
+    }
 
-    return (
-        <>
+    useInterval(() => {
+        if (instructions.length > 0) {
+            step();
+        }
+    }, running ? 1000 : null);
 
-            <a
-                href="https://cache-simulator-tracergrind-parser.netlify.app/"
-                target="_blank"
-            >
-                Text dump parser link
-            </a>
-            <Dragger {...uploaderProps}>
-                <p className="ant-upload-drag-icon">
-                    <InboxOutlined/>
-                </p>
-                <p className="ant-upload-text">Click or drag file to start parsing</p>
-                <p className="ant-upload-hint">
-                    Only TracerGrind texttrace dumps are supported!
-                </p>
-            </Dragger>
-            <h2>cache parameters</h2>
-            <div>
-                <span>policy:</span>
-                <Select
-                    value={policy}
-                    onChange={value => setPolicy(value)}
-                    options={[
-                        {label: 'LRU', value: 'LRU'},
-                        {label: 'FIFO', value: 'FIFO'},
-                        {label: 'Random', value: 'Random'},
-                    ]}
-                />
+
+    return <>
+        <Header
+            playing={running}
+            onFileManagerClick={() => setFileManagerOpen(true)}
+            onParametersChange={setParameters}
+            onProgramChange={setProgram}
+            onSettingsClick={() => setSettingsOpen(true)}
+            onResetClick={() => setParameters([...parameters])}
+            onStepClick={step}
+            onFastForwardClick={fastForward}
+            onPlayClick={() => setRunning(!running)}
+        />
+        <FileManagerModal
+            open={fileManagerOpen}
+            onClose={() => setFileManagerOpen(false)}
+        />
+        <SettingsModal
+            open={settingsOpen}
+            onClose={() => setSettingsOpen(false)}
+        />
+
+        {runner.caches.map((_, index) => (
+            runner.getLastHistoryFromLevel(index) && <StatusBar
+                key={index}
+                cache={runner.caches[index]}
+                history={runner.getLastHistoryFromLevel(index)!}
+                cycle={runner.lastSimulatedCycle}
+                instructions={instructions}
+            />
+        ))}
+
+        <main className="pt-4 container mx-auto">
+            <Tabs
+                defaultActiveKey={String(0)}
+                type="card"
+                onChange={key => setCacheIndex(Number(key))}
+                items={runner.caches.map((cache) => ({
+                    label: `L${cache.getLevel()} Cache`,
+                    key: String(cache.getLevel() - 1),
+                }))}
+            />
+
+            <div className="flex gap-4">
+                <div className="flex-grow">
+                    <CacheState
+                        cache={runner.caches[cacheIndex]}
+                        highlight={runner.getLastHistoryFromLevel(cacheIndex) ? {
+                            hit: !runner.getLastHistoryFromLevel(cacheIndex)!.setAccess.replacementReason,
+                            setIndex: runner.getLastHistoryFromLevel(cacheIndex)!.setIndex,
+                            blockIndex: runner.getLastHistoryFromLevel(cacheIndex)!.setAccess.replacedIndex,
+                        } : undefined}
+                    />
+                </div>
+                <div className="w-[20rem]">
+                    <CacheAccessHistory history={runner.buildHistory(cacheIndex, 10) ?? []}/>
+                </div>
             </div>
-            <div>
-                <span>sets:</span>
-                <PowerOf2Input
-                    value={Number(sets)}
-                    onChange={value => setSets(BigInt(value ?? 1))}
-                />
-            </div>
-            <div>
-                <span>blocks per set:</span>
-                <PowerOf2Input
-                    value={Number(blocksPerSet)}
-                    onChange={value => setBlocksPerSet(BigInt(value ?? 1))}
-                />
-            </div>
-            <div>
-                <span>words per block:</span>
-                <PowerOf2Input
-                    value={Number(wordsPerBlock)}
-                    onChange={value => setWordsPerBlock(BigInt(value ?? 1))}
-                />
-            </div>
-            <div>
-                <span>capacity:</span>
-                {Number(sets * blocksPerSet * wordsPerBlock * ARCH / 8n)} bytes
-            </div>
-
-            <h2>performance metrics ({files[0]?.name})</h2>
-            <p>reads: {cache.reads.toString()}</p>
-            <p>writes: {cache.writes.toString()}</p>
-            <p>hits: {cache.hits.toString()}</p>
-            <p>misses: {cache.misses.toString()}</p>
-            <p>initialization: {initializationTime}ms</p>
-            <p>runtime: {runTime}ms</p>
-        </>
-    )
+        </main>
+    </>
 }
 
 export default App

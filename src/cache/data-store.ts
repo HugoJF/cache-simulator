@@ -1,6 +1,5 @@
-import {Address} from "./address.ts";
-
+// TODO remove any
 export abstract class DataStore {
-    abstract read(address: Address): bigint;
-    abstract write(address: Address, value: bigint): void;
+    abstract read(address: bigint): void;
+    abstract write(address: bigint, value: bigint): void;
 }

@@ -8,10 +8,16 @@ export class CacheBlock {
     tag: bigint;
     data: bigint[];
 
-    lastAccessedAt = 0n;
-    readAt = 0n;
+    index: number;
 
-    constructor(private readonly cache: CacheSimulator) {
+    accessHistory: Record<number, CacheBlockAccess> = {};
+
+    lastAccessedAt = 0;
+    loadedAt = 0;
+
+    constructor(private readonly cache: CacheSimulator, index: number) {
+        this.index = index;
+
         this.tag = 0n;
         this.data = [];
     }
@@ -20,33 +26,40 @@ export class CacheBlock {
         return this.tag;
     }
 
+    getIndex() {
+        return this.index;
+    }
+
     read(address: Address): CacheBlockAccess {
         this.cache.reads++;
 
+        console.log(`Cache ${this.cache.getLevel()} reading 0x${address.raw.toString(16)}`)
+
+        console.log(this.cache);
+
         if (this.valid && this.tag === address.tag) {
             this.cache.hits++;
-            this.lastAccessedAt = this.cache.getCycle();
-            return {
-                data: this.data[Number(address.offset)],
+            this.lastAccessedAt = this.cache.runner.getCurrentCycle();
+            this.accessHistory[this.cache.runner.getCurrentCycle()] = {
                 hit: true,
                 address: address.raw,
             }
+            return this.accessHistory[this.cache.runner.getCurrentCycle()];
         }
 
         this.cache.misses++;
-        const underlyingData = this.cache.underlying.read(address);
-        this.readAt = this.cache.getCycle();
-        this.lastAccessedAt = this.cache.getCycle();
-        // TODO read more data
-        this.data[Number(address.offset)] = underlyingData;
+        this.cache.underlying.read(address.raw);
+        this.loadedAt = this.cache.runner.getCurrentCycle();
+        this.lastAccessedAt = this.cache.runner.getCurrentCycle();
         this.tag = address.tag;
         this.valid = true;
 
-        return {
-            data: underlyingData,
+        this.accessHistory[this.cache.runner.getCurrentCycle()] = {
             hit: false,
             address: address.raw,
         }
+
+        return this.accessHistory[this.cache.runner.getCurrentCycle()];
     }
 
     write(address: Address, data: bigint) {
@@ -57,6 +70,6 @@ export class CacheBlock {
 
         this.data[offset] = data;
         // TODO implement write policies
-        this.cache.underlying.write(address, data);
+        this.cache.underlying.write(address.raw, data);
     }
 }

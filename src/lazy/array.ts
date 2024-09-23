@@ -1,7 +1,7 @@
 export class LazyArray<T> {
     public readonly data: T[];
 
-    constructor(public readonly length: number, private initializer: () => T) {
+    constructor(public readonly length: number, private initializer: (index: number) => T) {
         this.data = [];
     }
 
@@ -11,7 +11,7 @@ export class LazyArray<T> {
         }
 
         if (!this.data[index]) {
-            this.data[index] = this.initializer();
+            this.data[index] = this.initializer(index);
         }
 
         return this.data[index];
@@ -25,22 +25,22 @@ export class LazyArray<T> {
         }
     }
 
-    findInitialized(predicate: (value: T) => boolean): T | undefined {
+    findInitialized(predicate: (value: T, index: number) => boolean): T | undefined {
         for (let i = 0; i < this.length; i++) {
             const value = this.data[i];
-            if (value && predicate(value)) {
+            if (value && predicate(value, i)) {
                 return value;
             }
         }
         return undefined;
     }
 
-    mapInitialized<U>(callback: (value: T) => U): U[] {
+    mapInitialized<U>(callback: (value: T, index: number) => U): U[] {
         const result = [];
         for (let i = 0; i < this.length; i++) {
             const value = this.data[i];
             if (value) {
-                result.push(callback(value));
+                result.push(callback(value, i));
             }
         }
         return result;

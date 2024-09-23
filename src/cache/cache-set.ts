@@ -1,17 +1,19 @@
 import {Address} from "./address.ts";
 import {CacheSimulator} from "./cache-simulator.ts";
 import {CacheBlock} from "./cache-block.ts";
-import {CacheSetAccess} from "./cache-set-access.ts";
+import {CacheSetAccess, ReplacementReason} from "./cache-set-access.ts";
 import {LazyArray} from "../lazy/array.ts";
 import {assertNonFalsy} from "../helpers/assertions.ts";
 
 export class CacheSet {
     blocks: LazyArray<CacheBlock>;
 
+    accessHistory: Record<number, CacheSetAccess> = {};
+
     constructor(private cache: CacheSimulator) {
         this.blocks = new LazyArray(
             Number(this.cache.parameters.blocksPerSet),
-            () => new CacheBlock(cache),
+            (index) => new CacheBlock(cache, index),
         )
     }
 
@@ -21,35 +23,40 @@ export class CacheSet {
 
         if (!block) {
             console.log(`Block not found for address 0x${address.raw.toString(16)}`)
-            const replacement = this.getReplacementBlock();
+            const [replacement, reason] = this.getReplacementBlock();
             // TODO assert
             if (!replacement) {
                 throw new Error("No replacement block found");
             }
             const replacedTag = replacement.getTag();
+            const replacedIndex = replacement.getIndex();
             const access = replacement.read(address);
 
-            return {
-                data: access.data,
-                replaced: true,
+            const cycle = this.cache.runner.getCurrentCycle();
+            this.accessHistory[cycle] = {
+                replacementReason: reason,
                 replacedTag: replacedTag,
+                replacedIndex: replacedIndex,
                 tagsAvailable: this.blocks.mapInitialized(block => block.getTag()),
                 address: address.raw,
                 blockAccess: access,
             }
+
+            return this.accessHistory[cycle];
         }
 
         console.log(`Block found for address 0x${address.raw.toString(16)}`)
         const access = block.read(address);
-
-        return {
-            data: access.data,
-            replaced: false,
+        this.accessHistory[this.cache.runner.getCurrentCycle()] = {
+            replacementReason: null,
             replacedTag: null,
+            replacedIndex: block.getIndex(),
             tagsAvailable: this.blocks.mapInitialized(block => block.getTag()),
             address: address.raw,
             blockAccess: access,
         }
+
+        return this.accessHistory[this.cache.runner.getCurrentCycle()];
     }
 
     write(address: Address, data: bigint) {
@@ -60,31 +67,33 @@ export class CacheSet {
         return block!.write(address, data);
     }
 
-    private getReplacementBlock() {
+    private getReplacementBlock(): [CacheBlock, ReplacementReason] {
         const uninitializedBlock = this.blocks.findUninitialized();
         if (uninitializedBlock) {
-            return uninitializedBlock;
+            return [uninitializedBlock, ReplacementReason.Uninitialized];
         }
 
         const invalidBlock = this.blocks.findInitialized(block => !block.valid);
         if (invalidBlock) {
-            return invalidBlock;
+            return [invalidBlock, ReplacementReason.Invalid];
         }
 
         if (this.cache.parameters.policy === 'LRU') {
-            return this.getLruReplacementBlock();
+            // TODO why undefined is returned?
+            return [this.getLruReplacementBlock() as CacheBlock, ReplacementReason.Lru];
         }
 
         if (this.cache.parameters.policy === 'FIFO') {
-            return this.getFifoReplacementBlock();
+            // TODO why undefined is returned?
+            return [this.getFifoReplacementBlock() as CacheBlock, ReplacementReason.Fifo];
         }
 
         console.warn('Unknown replacement policy, falling back to random');
         const replacement = this.blocks.get(
             Math.floor(Math.random() * this.blocks.length),
         );
-        assertNonFalsy(replacement, "Somehow we find a non-initialized block");
-        return replacement as CacheBlock; // TODO type-guard
+        assertNonFalsy(replacement, "Somehow we found a non-initialized block");
+        return [replacement as CacheBlock, ReplacementReason.Unknown]; // TODO type-guard
     }
 
     private getLruReplacementBlock() {
@@ -92,15 +101,15 @@ export class CacheSet {
         const accessTimes = this.blocks.mapInitialized(block => block.lastAccessedAt).map(Number);
         const minAccessTime = Math.min(...accessTimes);
 
-        return  this.blocks.findInitialized(block => Number(block.lastAccessedAt) === minAccessTime);
+        return this.blocks.findInitialized(block => Number(block.lastAccessedAt) === minAccessTime);
     }
 
     private getFifoReplacementBlock() {
         // TODO bigint -> Number conversion
-        const readTimes = this.blocks.mapInitialized(block => block.readAt).map(Number);
-        const minReadTime = Math.min(...readTimes);
+        const loadTimes = this.blocks.mapInitialized(block => block.loadedAt).map(Number);
+        const minLoadTime = Math.min(...loadTimes);
 
-        return this.blocks.findInitialized(block => Number(block.readAt) === minReadTime);
+        return this.blocks.findInitialized(block => Number(block.loadedAt) === minLoadTime);
     }
 
     private findBlockFromTag(address: Address) {
