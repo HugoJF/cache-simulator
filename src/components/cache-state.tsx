@@ -95,7 +95,7 @@ export default function CacheState({cache, highlight}: CacheStatusProps) {
                                         <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
                                             {
                                                 interleaveMap(
-                                                    blockAddressRange(cache.parameters, block),
+                                                    blockAddressRange(cache.parameters, set, block),
                                                     (address) => <BigIntToHex
                                                         key={address}
                                                         value={address}

@@ -10,7 +10,10 @@ export class CacheSet {
 
     accessHistory: Record<number, CacheSetAccess> = {};
 
-    constructor(private cache: CacheSimulator) {
+    constructor(
+        private readonly cache: CacheSimulator,
+        public readonly index: number,
+    ) {
         this.blocks = new LazyArray(
             Number(this.cache.parameters.blocksPerSet),
             (index) => new CacheBlock(cache, index),

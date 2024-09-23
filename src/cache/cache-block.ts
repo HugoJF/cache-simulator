@@ -8,15 +8,15 @@ export class CacheBlock {
     tag: bigint;
     data: bigint[];
 
-    index: number;
-
     accessHistory: Record<number, CacheBlockAccess> = {};
 
     lastAccessedAt = 0;
     loadedAt = 0;
 
-    constructor(private readonly cache: CacheSimulator, index: number) {
-        this.index = index;
+    constructor(
+        private readonly cache: CacheSimulator,
+        public readonly index: number
+    ) {
 
         this.tag = 0n;
         this.data = [];

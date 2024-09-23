@@ -26,7 +26,7 @@ export class CacheSimulator implements DataStore {
     ) {
         this.sets = new LazyArray(
             Number(parameters.sets),
-            () => new CacheSet(this),
+            (index) => new CacheSet(this, index),
         )
     }
 
