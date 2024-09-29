@@ -1,29 +1,49 @@
 import './App.css'
 import {useMemo, useReducer, useState} from 'react'
-import {CacheParameters} from "./cache/cache-parameters.ts";
 import {Header} from "./components/header.tsx";
 import useInterval from "use-interval";
-import {CACHE_CONFIGURATIONS} from "./constants/configurations.ts";
 import CacheAccessHistory from "./components/cache-access-history.tsx";
 import CacheState from "./components/cache-state.tsx";
 import {StatusBar} from "./components/status-bar";
 import {FileManagerModal} from "./components/file-manager-modal";
 import {SettingsModal} from "./components/settings-modal";
 import {CacheRunner} from "./cache/cache-runner.ts";
-import {PROGRAMS} from "./constants/programs.ts";
 import {Tabs} from "antd";
+import {usePrograms} from "./contexts/programs.tsx";
+import {useCaches} from "./contexts/caches.tsx";
+import {Content} from "antd/lib/layout/layout";
+import {Empty} from "./components/empty";
 
 function App() {
     // re-render function hook
+    const {programs} = usePrograms();
+    const {caches} = useCaches();
+
+    const [resetToken, reset] = useReducer((x) => x + 1, 0);
     const [, rerender] = useReducer((x) => x + 1, 0);
-    const [parameters, setParameters] = useState<CacheParameters[]>(CACHE_CONFIGURATIONS[0]);
-    const [program, setProgram] = useState<string[]>(PROGRAMS["strcmp.out"]);
-    const [cacheIndex, setCacheIndex] = useState(0);
+
+    const [programIndex, _setProgramIndex] = useState(Object.keys(programs)[0]);
+    const [cacheIndex, _setCacheIndex] = useState(0);
+
+    const [selectedCacheIndex, setSelectedCacheIndex] = useState(0);
+
+    function setProgramIndex(programIndex: string) {
+        _setProgramIndex(programIndex);
+        setSelectedCacheIndex(0);
+    }
+
+    function setCacheIndex(cacheIndex: number) {
+        _setCacheIndex(cacheIndex);
+        setSelectedCacheIndex(0);
+    }
 
     const [running, setRunning] = useState(false);
 
     const [fileManagerOpen, setFileManagerOpen] = useState(false);
     const [settingsOpen, setSettingsOpen] = useState(false);
+
+    const program = programs[programIndex];
+    const parameters = caches[cacheIndex];
 
     const instructions = useMemo(() => {
         return program.map(log => BigInt(log))
@@ -31,7 +51,7 @@ function App() {
 
     const runner = useMemo(() => {
         return new CacheRunner(parameters, instructions);
-    }, [parameters, instructions])
+    }, [parameters, instructions, resetToken])
 
     function step() {
         rerender();
@@ -56,10 +76,16 @@ function App() {
         <Header
             playing={running}
             onFileManagerClick={() => setFileManagerOpen(true)}
-            onParametersChange={setParameters}
-            onProgramChange={setProgram}
+            onCacheChange={(cacheIndex) => {
+                setCacheIndex(cacheIndex);
+            }}
+            onProgramChange={(programIndex) => {
+                setProgramIndex(programIndex);
+            }}
             onSettingsClick={() => setSettingsOpen(true)}
-            onResetClick={() => setParameters([...parameters])}
+            onResetClick={() => {
+                reset();
+            }}
             onStepClick={step}
             onFastForwardClick={fastForward}
             onPlayClick={() => setRunning(!running)}
@@ -84,29 +110,32 @@ function App() {
         ))}
 
         <main className="pt-4 container mx-auto">
-            <Tabs
+            {Boolean(runner.buildHistory(0, 1)?.length) && <Tabs
                 defaultActiveKey={String(0)}
-                type="card"
-                onChange={key => setCacheIndex(Number(key))}
+                onChange={key => setSelectedCacheIndex(Number(key))}
                 items={runner.caches.map((cache) => ({
                     label: `L${cache.getLevel()} Cache`,
                     key: String(cache.getLevel() - 1),
                 }))}
-            />
+            />}
+
+            {!runner.buildHistory(0, 1)?.length && <Empty/>}
+
+            {/*{runner.caches.map(cache => <ParameterVisualizer parameters={cache.parameters}/>)}*/}
 
             <div className="flex gap-4">
                 <div className="flex-grow">
                     <CacheState
-                        cache={runner.caches[cacheIndex]}
-                        highlight={runner.getLastHistoryFromLevel(cacheIndex) ? {
-                            hit: !runner.getLastHistoryFromLevel(cacheIndex)!.setAccess.replacementReason,
-                            setIndex: runner.getLastHistoryFromLevel(cacheIndex)!.setIndex,
-                            blockIndex: runner.getLastHistoryFromLevel(cacheIndex)!.setAccess.replacedIndex,
+                        cache={runner.caches[selectedCacheIndex]}
+                        highlight={runner.getLastHistoryFromLevel(selectedCacheIndex) ? {
+                            hit: !runner.getLastHistoryFromLevel(selectedCacheIndex)!.setAccess.replacementReason,
+                            setIndex: runner.getLastHistoryFromLevel(selectedCacheIndex)!.setIndex,
+                            blockIndex: runner.getLastHistoryFromLevel(selectedCacheIndex)!.setAccess.replacedIndex,
                         } : undefined}
                     />
                 </div>
                 <div className="w-[20rem]">
-                    <CacheAccessHistory history={runner.buildHistory(cacheIndex, 10) ?? []}/>
+                    <CacheAccessHistory history={runner.buildHistory(selectedCacheIndex, 10) ?? []}/>
                 </div>
             </div>
         </main>

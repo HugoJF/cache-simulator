@@ -1,5 +1,5 @@
 export class LazyArray<T> {
-    public readonly data: T[];
+    public readonly data: (T|undefined)[];
 
     constructor(public readonly length: number, private initializer: (index: number) => T) {
         this.data = [];
@@ -33,6 +33,19 @@ export class LazyArray<T> {
             }
         }
         return undefined;
+    }
+
+    map<U>(callback: (value: (T|undefined), index: number) => U): (U|undefined)[] {
+        const result = [];
+        for (let i = 0; i < this.length; i++) {
+            const value = this.data[i];
+            if (value) {
+                result.push(callback(value, i));
+            } else {
+                result.push(undefined);
+            }
+        }
+        return result;
     }
 
     mapInitialized<U>(callback: (value: T, index: number) => U): U[] {

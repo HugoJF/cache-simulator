@@ -16,6 +16,7 @@ export type SettingsModalProps = {
 // TODO highlight disabler
 // TODO tag serialization
 // TODO index serialization
+// TODO language
 
 export const SettingsModal = ({open, onClose}: SettingsModalProps) => {
     const [stepperInterval, setStepperInterval] = useState(30)

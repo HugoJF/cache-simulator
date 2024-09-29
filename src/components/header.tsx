@@ -34,8 +34,8 @@ type Props = {
 
     onFileManagerClick: () => void;
 
-    onParametersChange: (parameters: CacheParameters[]) => void;
-    onProgramChange: (program: string[]) => void;
+    onCacheChange: (cacheIndex: number) => void;
+    onProgramChange: (programName: string) => void;
 
     onSettingsClick: () => void;
     onResetClick: () => void;
@@ -47,7 +47,7 @@ type Props = {
 export const Header: FC<Props> = ({
     playing,
     onFileManagerClick,
-    onParametersChange,
+    onCacheChange,
     onProgramChange,
     onSettingsClick,
     onResetClick,
@@ -90,8 +90,7 @@ export const Header: FC<Props> = ({
                         defaultValue={selectedCacheKey}
                         onChange={key => {
                             const index = Number(key);
-                            const parameters = caches[index];
-                            onParametersChange(parameters);
+                            onCacheChange(index);
                             setSelectedCacheKey(key);
                         }}
                         options={caches.map((config, index) => ({
@@ -144,9 +143,8 @@ export const Header: FC<Props> = ({
                     <Select
                         popupMatchSelectWidth={false}
                         defaultValue={Object.keys(programs)[0]}
-                        onChange={key => {
-                            const program = programs[key];
-                            onProgramChange(program);
+                        onChange={programName => {
+                            onProgramChange(programName);
                         }}
                         options={Object.keys(programs).map(name => ({
                             value: name,

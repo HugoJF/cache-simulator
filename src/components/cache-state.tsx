@@ -80,12 +80,12 @@ export default function CacheState({cache, highlight}: CacheStatusProps) {
                                             {block.valid ? (
                                                 <Check
                                                     className="text-green-500 inline"
-                                                    size={12}
+                                                    size={20}
                                                 />
                                             ) : (
                                                 <X
                                                     className="text-red-500 inline"
-                                                    size={12}
+                                                    size={20}
                                                 />
                                             )}
                                         </td>
