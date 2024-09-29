@@ -1,9 +1,9 @@
 import {Form, Modal, Select, Tabs, TabsProps} from "antd";
 import {useEffect, useState} from "react";
-import {Clock, ListRestart, Shuffle} from "lucide-react";
+import {Clock, Cpu, ListRestart, Shuffle, Zap} from "lucide-react";
 import {parametersToCapacity, parameterToHumanReadable} from "../../helpers/parameters.ts";
 import {CacheParameters} from "../../cache/cache-parameters.ts";
-import {formatCapacity, formatNumber} from "../../helpers/number.ts";
+import {formatCapacity, formatNumber, formatTimeFromNs} from "../../helpers/number.ts";
 import {DynamicLogSlider} from "../dynamic-log-slider";
 import {DynamicLogRadio} from "../dynamic-log-radio";
 
@@ -12,6 +12,8 @@ const defaultCache: CacheParameters = {
     blocksPerSet: 2n,
     wordsPerBlock: 8n,
     wordSize: 64n,
+    hitTime: 1n,
+    missPenalty: 10n,
     policy: 'LRU',
 };
 
@@ -30,6 +32,7 @@ function getNewDefaultCache() {
 // TODO add DnD feature to reorder caches?
 export const ConfiguratorModal = ({initialCaches, open, onCreate, onClose}: ConfiguratorModalProps) => {
     const [selectedCache, setSelectedCache] = useState(0)
+    const [customCacheTiming, setCustomCacheTiming] = useState(false);
     const [caches, setCaches] = useState<CacheParameters[]>([getNewDefaultCache(), getNewDefaultCache()])
 
     const [form] = Form.useForm();
@@ -77,6 +80,22 @@ export const ConfiguratorModal = ({initialCaches, open, onCreate, onClose}: Conf
         onClose()
     }
 
+    const updateCache = <T extends keyof CacheParameters>(
+        cacheIndex: number,
+        property: T,
+        value: CacheParameters[T],
+    ) => {
+        setCaches(caches.map((cache, i) => {
+            if (i !== cacheIndex) {
+                return cache;
+            }
+            return {
+                ...cache,
+                [property]: value,
+            }
+        }))
+    }
+
     return (
         <>
             <Modal
@@ -84,6 +103,7 @@ export const ConfiguratorModal = ({initialCaches, open, onCreate, onClose}: Conf
                 open={open}
                 onOk={handleModalOk}
                 onCancel={handleModalCancel}
+                maskClosable={false}
             >
                 <Tabs
                     defaultActiveKey={String(selectedCache)}
@@ -107,19 +127,10 @@ export const ConfiguratorModal = ({initialCaches, open, onCreate, onClose}: Conf
                         label={`Number of sets: ${formatNumber(Number(currentCache.sets))}`}
                     >
                         <DynamicLogSlider
-                            // TODO not BigInt conversion
                             max={10}
                             value={Number(currentCache.sets ?? 1)}
                             onChange={value => {
-                                setCaches(caches.map((cache, i) => {
-                                    if (i === selectedCache) {
-                                        return {
-                                            ...cache,
-                                            sets: BigInt(value),
-                                        }
-                                    }
-                                    return cache;
-                                }))
+                                updateCache(selectedCache, 'sets', BigInt(value))
                             }}
                             defaultValue={30}
                             tooltip={{open: false}}
@@ -130,19 +141,10 @@ export const ConfiguratorModal = ({initialCaches, open, onCreate, onClose}: Conf
                         label={`Blocks per Set: ${formatNumber(Number(currentCache.blocksPerSet))}`}
                     >
                         <DynamicLogSlider
-                            // TODO not BigInt conversion
                             max={5}
                             value={Number(currentCache.blocksPerSet ?? 1n)}
                             onChange={value => {
-                                setCaches(caches.map((cache, i) => {
-                                    if (i === selectedCache) {
-                                        return {
-                                            ...cache,
-                                            blocksPerSet: BigInt(value),
-                                        }
-                                    }
-                                    return cache;
-                                }))
+                                updateCache(selectedCache, 'blocksPerSet', BigInt(value))
                             }}
                             defaultValue={30}
                             tooltip={{open: false}}
@@ -155,16 +157,7 @@ export const ConfiguratorModal = ({initialCaches, open, onCreate, onClose}: Conf
                             min={0}
                             value={Number(currentCache.wordsPerBlock)}
                             onChange={value => {
-                                setCaches(caches.map((cache, i) => {
-                                    if (i === selectedCache) {
-                                        return {
-                                            ...cache,
-                                            wordsPerBlock: BigInt(value),
-                                        }
-                                    }
-                                    return cache;
-                                }))
-
+                                updateCache(selectedCache, 'wordsPerBlock', BigInt(value))
                             }}
                         />
                     </Form.Item>
@@ -173,7 +166,9 @@ export const ConfiguratorModal = ({initialCaches, open, onCreate, onClose}: Conf
                     >
                         <Select
                             defaultValue="lru"
-                            onChange={console.log}
+                            onChange={value => {
+                                updateCache(selectedCache, 'policy', value as 'LRU' | 'FIFO')
+                            }}
                             options={[
                                 {
                                     value: 'lru', label: <div className="flex items-center gap-1">
@@ -198,12 +193,70 @@ export const ConfiguratorModal = ({initialCaches, open, onCreate, onClose}: Conf
                             ]}
                         />
                     </Form.Item>
+                    <Form.Item
+                        label="Cache Timing"
+                    >
+                        <Select
+                            defaultValue="simple"
+                            onChange={value => {
+                                setCustomCacheTiming(value === 'custom')
+                            }}
+                            options={[
+                                {
+                                    value: 'simple', label: <div className="flex items-center gap-1">
+                                        <Zap className="w-4"/>
+                                        <span>Simple</span>
+                                    </div>,
+                                },
+                                {
+                                    value: 'custom',
+                                    label: <div className="flex items-center gap-1">
+                                        <Cpu className="w-4"/>
+                                        <span>Custom</span>
+                                    </div>,
+                                },
+                            ]}
+                        />
+                    </Form.Item>
+
+                    {customCacheTiming && <>
+                      <Form.Item
+                        label={`Hit time: ${formatTimeFromNs(Number(currentCache.hitTime))}`}
+                      >
+                        <DynamicLogSlider
+                          max={5}
+                          value={Number(currentCache.hitTime ?? 1n)}
+                          onChange={value => {
+                              updateCache(selectedCache, 'hitTime', BigInt(value))
+                          }}
+                          defaultValue={30}
+                          tooltip={{open: false}}
+                        />
+                      </Form.Item>
+
+                      <Form.Item
+                        label={`Miss penalty: ${formatTimeFromNs(Number(currentCache.missPenalty))}`}
+                      >
+                        <DynamicLogSlider
+                          max={5}
+                          value={Number(currentCache.missPenalty ?? 1n)}
+                          onChange={value => {
+                              updateCache(selectedCache, 'missPenalty', BigInt(value))
+                          }}
+                          defaultValue={30}
+                          tooltip={{open: false}}
+                        />
+                      </Form.Item>
+                    </>}
 
                     <div className="bg-gray-100 px-4 py-4 rounded">
                         <h2 className="text-lg font-medium">Cache Hierarchy Overview</h2>
                         <ul className="my-1">
                             {caches.map((cache, index) => (
-                                <li key={index} className="flex justify-between">
+                                <li
+                                    key={index}
+                                    className="flex justify-between"
+                                >
                                     <span>L{index + 1} Cache:</span>
                                     <span>{parameterToHumanReadable(cache)}</span>
                                 </li>

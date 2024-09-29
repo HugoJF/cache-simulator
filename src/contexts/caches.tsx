@@ -13,6 +13,8 @@ const initialCaches: CacheParameters[][] = [
         blocksPerSet: 2n,
         wordsPerBlock: 8n,
         wordSize: ADDRESS_SIZE,
+        hitTime: 1n,
+        missPenalty: 10n,
         policy: 'LRU',
     }],
     [{
@@ -20,6 +22,8 @@ const initialCaches: CacheParameters[][] = [
         blocksPerSet: 1n,
         wordsPerBlock: 64n,
         wordSize: ADDRESS_SIZE,
+        hitTime: 1n,
+        missPenalty: 10n,
         policy: 'LRU',
     }],
     [{
@@ -27,12 +31,16 @@ const initialCaches: CacheParameters[][] = [
         blocksPerSet: 16n,
         wordsPerBlock: 16n,
         wordSize: ADDRESS_SIZE,
+        hitTime: 1n,
+        missPenalty: 10n,
         policy: 'LRU',
     }, {
         sets: 32n,
         blocksPerSet: 32n,
         wordsPerBlock: 32n,
         wordSize: ADDRESS_SIZE,
+        hitTime: 1n,
+        missPenalty: 10n,
         policy: 'LRU',
     }],
 ]

@@ -11,7 +11,6 @@ import {CacheRunner} from "./cache/cache-runner.ts";
 import {Tabs} from "antd";
 import {usePrograms} from "./contexts/programs.tsx";
 import {useCaches} from "./contexts/caches.tsx";
-import {Content} from "antd/lib/layout/layout";
 import {Empty} from "./components/empty";
 
 function App() {
