@@ -64,7 +64,6 @@ export const ConfiguratorModal = ({initialCaches, open, onCreate, onClose}: Conf
             addCache()
         } else {
             if (typeof event !== 'string') {
-                console.log(event)
                 throw new Error('Was not expecting a non-string TabProps.onEdit remove event');
             }
             removeCache(event)
