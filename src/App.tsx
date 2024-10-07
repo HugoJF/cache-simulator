@@ -16,7 +16,7 @@ import {Empty} from "./components/empty";
 function App() {
     // re-render function hook
     const {programs} = usePrograms();
-    const {caches} = useCaches();
+    const {caches, setCaches} = useCaches();
 
     const [resetToken, reset] = useReducer((x) => x + 1, 0);
     const [, rerender] = useReducer((x) => x + 1, 0);
@@ -24,16 +24,16 @@ function App() {
     const [programIndex, _setProgramIndex] = useState(Object.keys(programs)[0]);
     const [cacheIndex, _setCacheIndex] = useState(0);
 
-    const [selectedCacheIndex, setSelectedCacheIndex] = useState(0);
+    const [selectedCacheLayer, setSelectedCacheLayer] = useState(0);
 
     function setProgramIndex(programIndex: string) {
         _setProgramIndex(programIndex);
-        setSelectedCacheIndex(0);
+        setSelectedCacheLayer(0);
     }
 
     function setCacheIndex(cacheIndex: number) {
         _setCacheIndex(cacheIndex);
-        setSelectedCacheIndex(0);
+        setSelectedCacheLayer(0);
     }
 
     const [running, setRunning] = useState(false);
@@ -75,8 +75,25 @@ function App() {
         <Header
             playing={running}
             onFileManagerClick={() => setFileManagerOpen(true)}
-            onCacheChange={(cacheIndex) => {
-                setCacheIndex(cacheIndex);
+            caches={caches}
+            selectedCacheIndex={cacheIndex}
+            onCacheSelect={(index) => {
+                setCacheIndex(index);
+            }}
+            onCacheUpdate={(cacheIndex, updatedCache) => {
+                if (cacheIndex) {
+                    setCaches(caches.map((cache, index) => (
+                        index === cacheIndex ? updatedCache : cache
+                    )));
+                } else {
+                    setCaches([...caches, updatedCache]);
+                }
+            }}
+            onCacheDelete={(index) => {
+                setCaches(caches.filter((_, i) => i !== index));
+                if (index === cacheIndex) {
+                    setCacheIndex(0);
+                }
             }}
             onProgramChange={(programIndex) => {
                 setProgramIndex(programIndex);
@@ -110,12 +127,12 @@ function App() {
 
         <main className="pt-4 container mx-auto">
             {Boolean(runner.buildHistory(0, 1)?.length) && <Tabs
-                defaultActiveKey={String(0)}
-                onChange={key => setSelectedCacheIndex(Number(key))}
-                items={runner.caches.map((cache) => ({
-                    label: `L${cache.getLevel()} Cache`,
-                    key: String(cache.getLevel() - 1),
-                }))}
+              defaultActiveKey={String(0)}
+              onChange={key => setSelectedCacheLayer(Number(key))}
+              items={runner.caches.map((cache) => ({
+                  label: `L${cache.getLevel()} Cache`,
+                  key: String(cache.getLevel() - 1),
+              }))}
             />}
 
             {!runner.buildHistory(0, 1)?.length && <Empty/>}
@@ -125,16 +142,16 @@ function App() {
             <div className="flex gap-4">
                 <div className="flex-grow">
                     <CacheState
-                        cache={runner.caches[selectedCacheIndex]}
-                        highlight={runner.getLastHistoryFromLevel(selectedCacheIndex) ? {
-                            hit: !runner.getLastHistoryFromLevel(selectedCacheIndex)!.setAccess.replacementReason,
-                            setIndex: runner.getLastHistoryFromLevel(selectedCacheIndex)!.setIndex,
-                            blockIndex: runner.getLastHistoryFromLevel(selectedCacheIndex)!.setAccess.replacedIndex,
+                        cache={runner.caches[selectedCacheLayer]}
+                        highlight={runner.getLastHistoryFromLevel(selectedCacheLayer) ? {
+                            hit: !runner.getLastHistoryFromLevel(selectedCacheLayer)!.setAccess.replacementReason,
+                            setIndex: runner.getLastHistoryFromLevel(selectedCacheLayer)!.setIndex,
+                            blockIndex: runner.getLastHistoryFromLevel(selectedCacheLayer)!.setAccess.replacedIndex,
                         } : undefined}
                     />
                 </div>
                 <div className="w-[20rem]">
-                    <CacheAccessHistory history={runner.buildHistory(selectedCacheIndex, 10) ?? []}/>
+                    <CacheAccessHistory history={runner.buildHistory(selectedCacheLayer, 10) ?? []}/>
                 </div>
             </div>
         </main>

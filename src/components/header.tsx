@@ -5,7 +5,6 @@ import {parametersToHumanReadable} from "../helpers/parameters.ts";
 import {CacheParameters} from "../cache/cache-parameters.ts";
 import {Pencil, Plus, Trash} from "lucide-react";
 import {ConfiguratorModal} from "./configurator-modal";
-import {useCaches} from "../contexts/caches.tsx";
 import {clsx} from "clsx";
 import {usePrograms} from "../contexts/programs.tsx";
 
@@ -29,12 +28,17 @@ function Icon({icon: Icon, description, disabled = false, ...rest}: IconProps) {
     </Tooltip>
 }
 
-type Props = {
+type HeaderProps = {
     playing: boolean;
 
     onFileManagerClick: () => void;
 
-    onCacheChange: (cacheIndex: number) => void;
+    caches: CacheParameters[][];
+    selectedCacheIndex: number;
+    onCacheSelect: (cacheIndex: number) => void;
+    onCacheUpdate: (cacheIndex: number | null, newCache: CacheParameters[]) => void;
+    onCacheDelete: (cacheIndex: number) => void;
+
     onProgramChange: (programName: string) => void;
 
     onSettingsClick: () => void;
@@ -44,10 +48,10 @@ type Props = {
     onPlayClick: () => void;
 
 }
-export const Header: FC<Props> = ({
+export const Header: FC<HeaderProps> = ({
     playing,
     onFileManagerClick,
-    onCacheChange,
+    caches, selectedCacheIndex, onCacheUpdate, onCacheSelect, onCacheDelete,
     onProgramChange,
     onSettingsClick,
     onResetClick,
@@ -55,28 +59,24 @@ export const Header: FC<Props> = ({
     onStepClick,
     onPlayClick,
 }) => {
-    const {caches, setCaches} = useCaches();
     const {programs} = usePrograms();
     const [configuratorVisible, setConfiguratorVisible] = useState(false);
 
-    const [selectedCacheKey, setSelectedCacheKey] = useState<string>("0");
-    const [modalCache, setModalCache] = useState<CacheParameters[] | undefined>();
+    const [modalInitialCache, setModalInitialCache] = useState<CacheParameters[] | undefined>();
 
-    // TODO move the entire logic outside this component
-    const selectedCacheIndex = Number(selectedCacheKey);
     const selectedCache = caches[selectedCacheIndex];
 
     function handleConfigurationSubmit(newCache: CacheParameters[]) {
-        if (modalCache) {
-            setCaches(caches.map((cache, index) => index === selectedCacheIndex ? newCache : cache));
+        if (modalInitialCache) {
+            onCacheUpdate(selectedCacheIndex, newCache);
         } else {
-            setCaches([...caches, newCache]);
+            onCacheUpdate(null, newCache);
         }
     }
 
     return <>
         <ConfiguratorModal
-            initialCaches={modalCache}
+            initialCaches={modalInitialCache}
             open={configuratorVisible}
             onCreate={handleConfigurationSubmit}
             onClose={() => setConfiguratorVisible(false)}
@@ -87,11 +87,10 @@ export const Header: FC<Props> = ({
                 <Tooltip title="Cache configuration">
                     <Select
                         popupMatchSelectWidth={false}
-                        defaultValue={selectedCacheKey}
+                        defaultValue={String(selectedCacheIndex)}
+                        value={String(selectedCacheIndex)}
                         onChange={key => {
-                            const index = Number(key);
-                            onCacheChange(index);
-                            setSelectedCacheKey(key);
+                            onCacheSelect(Number(key));
                         }}
                         options={caches.map((config, index) => ({
                             value: String(index),
@@ -113,7 +112,7 @@ export const Header: FC<Props> = ({
                             icon: <Plus size={16}/>,
                             onClick: () => {
                                 setConfiguratorVisible(true)
-                                setModalCache(undefined);
+                                setModalInitialCache(undefined);
                             },
                         }, {
                             key: 'edit',
@@ -121,14 +120,15 @@ export const Header: FC<Props> = ({
                             icon: <Pencil size={16}/>,
                             onClick: () => {
                                 setConfiguratorVisible(true)
-                                setModalCache(selectedCache);
+                                setModalInitialCache(selectedCache);
                             },
                         }, {
                             key: 'delete',
                             label: 'Delete selected',
                             icon: <Trash size={16}/>,
                             onClick: () => {
-                                // TODO implement deletion
+                                // TODO: disable if last cache
+                                onCacheDelete(selectedCacheIndex);
                             },
                         }],
                     }}
