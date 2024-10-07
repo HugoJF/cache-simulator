@@ -125,9 +125,10 @@ export const Header: FC<HeaderProps> = ({
                         }, {
                             key: 'delete',
                             label: 'Delete selected',
+                            danger: true,
                             icon: <Trash size={16}/>,
+                            disabled: caches.length === 1,
                             onClick: () => {
-                                // TODO: disable if last cache
                                 onCacheDelete(selectedCacheIndex);
                             },
                         }],
