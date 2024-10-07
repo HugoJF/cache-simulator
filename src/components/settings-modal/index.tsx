@@ -130,7 +130,7 @@ export const SettingsModal = ({open, onClose}: SettingsModalProps) => {
                     <a
                         className="underline text-blue-500"
                         target="_blank"
-                        href="https://github.com/HugoJF/cache-simulator-tracergrind-parser"
+                        href="https://github.com/HugoJF/tracergrind-docker"
                     >Learn more about log generation</a>
                 </p>
             </div>
