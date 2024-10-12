@@ -12,8 +12,6 @@ import {Tabs} from "antd";
 import {usePrograms} from "./contexts/programs.tsx";
 import {useCaches} from "./contexts/caches.tsx";
 import {Empty} from "./components/empty";
-import {ParameterVisualizerModal} from "./components/parameter-visualizer-modal";
-import {noop} from "./helpers/function.ts";
 
 function App() {
     // re-render function hook
@@ -138,10 +136,6 @@ function App() {
             />}
 
             {!runner.buildHistory(0, 1)?.length && <Empty/>}
-
-            {/*{runner.caches.map(cache => <ParameterVisualizer parameters={cache.parameters}/>)}*/}
-
-            <ParameterVisualizerModal open onClose={noop}/>
 
             <div className="flex gap-4">
                 <div className="flex-grow">

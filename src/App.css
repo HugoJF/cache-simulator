@@ -13,3 +13,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.ant-modal.ant-fullscreen {
+    margin: 0;
+    height: 100dvh;
+    width: 100dvw;
+    top: 0;
+}
+.ant-modal.ant-fullscreen .ant-modal-content {
+    display: flex;
+    flex-direction: column;
+    height: calc(100dvh - 40px);
+    width: calc(100dvw - 40px);
+    margin: 20px;
+}
+.ant-modal-body {
+    flex-grow: 1;
+}
