@@ -7,6 +7,7 @@ import {formatCapacity, formatNumber, formatTimeFromNs} from "../../helpers/numb
 import {DynamicLogSlider} from "../dynamic-log-slider";
 import {DynamicLogRadio} from "../dynamic-log-radio";
 import {ParameterVisualizerModal} from "../parameter-visualizer-modal";
+import {DynamicSlider} from "../dynamic-slider";
 
 const defaultCache: CacheParameters = {
     sets: 32n,
@@ -232,7 +233,7 @@ export const ConfiguratorModal = ({initialCaches, open, onCreate, onClose}: Conf
                           <Form.Item
                             label={`Hit time: ${formatTimeFromNs(Number(currentCache.hitTime))}`}
                           >
-                            <DynamicLogSlider
+                            <DynamicSlider
                               max={5}
                               value={Number(currentCache.hitTime ?? 1n)}
                               onChange={value => {
@@ -246,7 +247,7 @@ export const ConfiguratorModal = ({initialCaches, open, onCreate, onClose}: Conf
                           <Form.Item
                             label={`Miss penalty: ${formatTimeFromNs(Number(currentCache.missPenalty))}`}
                           >
-                            <DynamicLogSlider
+                            <DynamicSlider
                               max={5}
                               value={Number(currentCache.missPenalty ?? 1n)}
                               onChange={value => {
