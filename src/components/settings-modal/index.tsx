@@ -1,7 +1,4 @@
 import {Form, Modal, Select} from "antd";
-import {formatTimeFromNs} from "../../helpers/number.ts";
-import {DynamicLogSlider} from "../dynamic-log-slider";
-import {useState} from "react";
 import {InfoIcon} from "lucide-react";
 import {useSettings} from "../../contexts/settings.tsx";
 
@@ -10,18 +7,9 @@ export type SettingsModalProps = {
     onClose: () => void;
 }
 
-// TODO address breakdown hover card
-// TODO only render initialized sets
-// TODO only render initialized blocks
-// TODO history size
-// TODO highlight disabler
-// TODO tag serialization
-// TODO index serialization
-// TODO language
-
 export const SettingsModal = ({open, onClose}: SettingsModalProps) => {
     const {settings, setSetting} = useSettings();
-    const [stepperInterval, setStepperInterval] = useState(30)
+    // const [stepperInterval, setStepperInterval] = useState(30)
 
     const [form] = Form.useForm();
 
@@ -56,74 +44,74 @@ export const SettingsModal = ({open, onClose}: SettingsModalProps) => {
                         ]}
                     />
                 </Form.Item>
-                <Form.Item
-                    label="Option 1"
-                >
-                    <Select
-                        defaultValue="opt1"
-                        onChange={console.log}
-                        options={[
-                            {
-                                value: 'opt1', label: "Option 1",
-                            }, {
-                                value: 'opt2', label: "Option 2",
-                            }, {
-                                value: 'opt3', label: "Option 3",
-                            },
-                        ]}
-                    />
-                </Form.Item>
-                <Form.Item
-                    label="Option 1"
-                >
-                    <Select
-                        defaultValue="opt1"
-                        onChange={console.log}
-                        options={[
-                            {
-                                value: 'opt1', label: "Option 1",
-                            }, {
-                                value: 'opt2', label: "Option 2",
-                            }, {
-                                value: 'opt3', label: "Option 3",
-                            },
-                        ]}
-                    />
-                </Form.Item>
-                <Form.Item
-                    label={`Auto-stepper interval: ${formatTimeFromNs(Number(stepperInterval))}`}
-                >
-                    <DynamicLogSlider
-                        // TODO not BigInt conversion
-                        max={10}
-                        value={Number(stepperInterval)}
-                        onChange={value => {
-                            setStepperInterval(value);
-                        }}
-                        defaultValue={30}
-                        tooltip={{open: false}}
-                    />
+                {/*<Form.Item*/}
+                {/*    label="Option 1"*/}
+                {/*>*/}
+                {/*    <Select*/}
+                {/*        defaultValue="opt1"*/}
+                {/*        onChange={console.log}*/}
+                {/*        options={[*/}
+                {/*            {*/}
+                {/*                value: 'opt1', label: "Option 1",*/}
+                {/*            }, {*/}
+                {/*                value: 'opt2', label: "Option 2",*/}
+                {/*            }, {*/}
+                {/*                value: 'opt3', label: "Option 3",*/}
+                {/*            },*/}
+                {/*        ]}*/}
+                {/*    />*/}
+                {/*</Form.Item>*/}
+                {/*<Form.Item*/}
+                {/*    label="Option 1"*/}
+                {/*>*/}
+                {/*    <Select*/}
+                {/*        defaultValue="opt1"*/}
+                {/*        onChange={console.log}*/}
+                {/*        options={[*/}
+                {/*            {*/}
+                {/*                value: 'opt1', label: "Option 1",*/}
+                {/*            }, {*/}
+                {/*                value: 'opt2', label: "Option 2",*/}
+                {/*            }, {*/}
+                {/*                value: 'opt3', label: "Option 3",*/}
+                {/*            },*/}
+                {/*        ]}*/}
+                {/*    />*/}
+                {/*</Form.Item>*/}
+                {/*<Form.Item*/}
+                {/*    label={`Auto-stepper interval: ${formatTimeFromNs(Number(stepperInterval))}`}*/}
+                {/*>*/}
+                {/*    <DynamicLogSlider*/}
+                {/*        // TODO not BigInt conversion*/}
+                {/*        max={10}*/}
+                {/*        value={Number(stepperInterval)}*/}
+                {/*        onChange={value => {*/}
+                {/*            setStepperInterval(value);*/}
+                {/*        }}*/}
+                {/*        defaultValue={30}*/}
+                {/*        tooltip={{open: false}}*/}
+                {/*    />*/}
 
-                </Form.Item>
-                <Form.Item
-                    label="Address serialization format"
-                >
-                    <Select
-                        defaultValue="hex"
-                        onChange={console.log}
-                        options={[
-                            {
-                                value: 'hex', label: "Hexadecimal",
-                            }, {
-                                value: 'octal', label: "Octal",
-                            }, {
-                                value: 'decimal', label: "Decimal",
-                            }, {
-                                value: 'binary', label: "Binary",
-                            },
-                        ]}
-                    />
-                </Form.Item>
+                {/*</Form.Item>*/}
+                {/*<Form.Item*/}
+                {/*    label="Address serialization format"*/}
+                {/*>*/}
+                {/*    <Select*/}
+                {/*        defaultValue="hex"*/}
+                {/*        onChange={console.log}*/}
+                {/*        options={[*/}
+                {/*            {*/}
+                {/*                value: 'hex', label: "Hexadecimal",*/}
+                {/*            }, {*/}
+                {/*                value: 'octal', label: "Octal",*/}
+                {/*            }, {*/}
+                {/*                value: 'decimal', label: "Decimal",*/}
+                {/*            }, {*/}
+                {/*                value: 'binary', label: "Binary",*/}
+                {/*            },*/}
+                {/*        ]}*/}
+                {/*    />*/}
+                {/*</Form.Item>*/}
             </Form>
 
             <div className="flex gap-2 px-4 py-4 bg-gray-100 rounded-lg">
