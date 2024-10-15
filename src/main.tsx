@@ -3,6 +3,7 @@ import App from './App.tsx'
 import {ConfigProvider} from "antd";
 import {CachesProvider} from "./contexts/caches.tsx";
 import {ProgramsProvider} from "./contexts/programs.tsx";
+import {SettingsProvider} from "./contexts/settings.tsx";
 
 // TODO move ConfigProvider to App.tsx
 ReactDOM.createRoot(document.getElementById('root')!).render(
@@ -21,7 +22,9 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
     >
         <CachesProvider>
             <ProgramsProvider>
-                <App/>
+                <SettingsProvider>
+                    <App/>
+                </SettingsProvider>
             </ProgramsProvider>
         </CachesProvider>
     </ConfigProvider>,

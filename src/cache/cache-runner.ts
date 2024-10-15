@@ -3,6 +3,11 @@ import {CacheSimulator} from "./cache-simulator.ts";
 import {Memory} from "./memory.ts";
 import {DataStore} from "./data-store.ts";
 import {range} from "../helpers/number.ts";
+import {suppressLogs} from "../helpers/function.ts";
+
+type RunnerOptions = {
+    simulationLogs?: boolean;
+}
 
 export class CacheRunner {
     caches: CacheSimulator[] = [];
@@ -13,6 +18,7 @@ export class CacheRunner {
     constructor(
         public readonly chainParameters: CacheParameters[],
         public readonly instructions: bigint[],
+        public readonly options?: RunnerOptions,
     ) {
         const lastIndex = chainParameters.length - 1;
         for (let i = lastIndex; i >= 0; i--) {
@@ -60,7 +66,10 @@ export class CacheRunner {
         }
 
         const instruction = this.instructions[this.lastSimulatedCycle];
-        const access = this.read(instruction);
+
+        const access = suppressLogs(!this.options?.simulationLogs, () => {
+            return this.read(instruction);
+        })
 
         return access;
     }

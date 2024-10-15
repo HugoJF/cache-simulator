@@ -3,6 +3,7 @@ import {formatTimeFromNs} from "../../helpers/number.ts";
 import {DynamicLogSlider} from "../dynamic-log-slider";
 import {useState} from "react";
 import {InfoIcon} from "lucide-react";
+import {useSettings} from "../../contexts/settings.tsx";
 
 export type SettingsModalProps = {
     open: boolean;
@@ -19,6 +20,7 @@ export type SettingsModalProps = {
 // TODO language
 
 export const SettingsModal = ({open, onClose}: SettingsModalProps) => {
+    const {settings, setSetting} = useSettings();
     const [stepperInterval, setStepperInterval] = useState(30)
 
     const [form] = Form.useForm();
@@ -41,9 +43,10 @@ export const SettingsModal = ({open, onClose}: SettingsModalProps) => {
                     help="Simulation generates huge amounts of logs and may slow down the browser. Disable for better performance."
                 >
                     <Select
-                        disabled
-                        defaultValue="false"
-                        onChange={console.log}
+                        defaultValue={String(settings.simulationLogs)}
+                        onChange={value => {
+                            setSetting('simulationLogs', value === 'true');
+                        }}
                         options={[
                             {
                                 value: 'true', label: "Enabled",

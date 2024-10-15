@@ -12,8 +12,11 @@ import {Tabs} from "antd";
 import {usePrograms} from "./contexts/programs.tsx";
 import {useCaches} from "./contexts/caches.tsx";
 import {Empty} from "./components/empty";
+import {useSetting} from "./contexts/settings.tsx";
 
 function App() {
+    const [simulationLogs] = useSetting('simulationLogs');
+
     // re-render function hook
     const {programs} = usePrograms();
     const {caches, setCaches} = useCaches();
@@ -49,8 +52,10 @@ function App() {
     }, [program]);
 
     const runner = useMemo(() => {
-        return new CacheRunner(parameters, instructions);
-    }, [parameters, instructions, resetToken])
+        return new CacheRunner(parameters, instructions, {
+            simulationLogs,
+        });
+    }, [simulationLogs, parameters, instructions, resetToken])
 
     function step() {
         rerender();
