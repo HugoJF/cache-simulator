@@ -27,14 +27,14 @@ export const formatCapacity = (value: bigint, decimals = 0) => {
 
 // TODO this can be improved greatly
 const timeUnits = ['ns', 'us', 'ms', 's'] as const;
-export const formatTimeFromNs = (value: number) => {
+export const formatTimeFromNs = (value: number, decimals = 2) => {
     let remaining = value;
     let unitIndex = 0;
     while (remaining >= 1000 && unitIndex < timeUnits.length - 1) {
         remaining /= 1000;
         unitIndex++;
     }
-    return `${remaining} ${timeUnits[unitIndex]}`;
+    return `${remaining.toFixed(decimals)} ${timeUnits[unitIndex]}`;
 }
 
 export const range = (start: number, end: number, inclusive = false) => {
