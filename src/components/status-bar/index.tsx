@@ -55,7 +55,7 @@ export const StatusBar = ({cache, history, cycle, instructions}: StatusBarProps)
             description="Hit-rate"
         />
         <BigNumber
-            key="tag"
+            key="average-access-time"
             value={formatTimeFromNs(averageAccessTime)}
             description="Average access time"
         />

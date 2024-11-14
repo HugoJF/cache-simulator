@@ -96,11 +96,11 @@ export default function CacheState({cache, highlight}: CacheStatusProps) {
                                             {
                                                 interleaveMap(
                                                     blockAddressRange(cache.parameters, set, block),
-                                                    (address) => <BigIntToHex
-                                                        key={address}
+                                                    (address, index) => <BigIntToHex
+                                                        key={[address, index].join('-')}
                                                         value={address}
                                                     />,
-                                                    (address) => <span key={address + '-label'}> - </span>,
+                                                    (address, index) => <span key={[address, index, 'label'].join('-')}> - </span>,
                                                 )
                                             }
                                         </td>
