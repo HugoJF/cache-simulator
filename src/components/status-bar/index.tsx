@@ -36,7 +36,7 @@ export const StatusBar = ({cache, history, cycle, instructions}: StatusBarProps)
         />
         <BigNumber
             key="address"
-            value={<BigIntToHex value={history.setAccess.address}/>}
+            value={<BigIntToHex value={history.setAccess.address.raw}/>}
             description="Address"
         />
         <BigNumber

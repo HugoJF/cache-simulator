@@ -41,7 +41,7 @@ export class CacheSet {
                 replacedTag: replacedTag,
                 replacedIndex: replacedIndex,
                 tagsAvailable: this.blocks.mapInitialized(block => block.getTag()),
-                address: address.raw,
+                address: address,
                 blockAccess: access,
             }
 
@@ -55,7 +55,7 @@ export class CacheSet {
             replacedTag: null,
             replacedIndex: block.getIndex(),
             tagsAvailable: this.blocks.mapInitialized(block => block.getTag()),
-            address: address.raw,
+            address: address,
             blockAccess: access,
         }
 
