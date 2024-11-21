@@ -86,7 +86,7 @@ function App() {
                 setCacheIndex(index);
             }}
             onCacheUpdate={(cacheIndex, updatedCache) => {
-                if (cacheIndex) {
+                if (cacheIndex !== null) {
                     setCaches(caches.map((cache, index) => (
                         index === cacheIndex ? updatedCache : cache
                     )));
