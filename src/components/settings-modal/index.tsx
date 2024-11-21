@@ -1,11 +1,22 @@
-import {Form, Modal, Select} from "antd";
+import {Form, Modal, Select, SelectProps} from "antd";
 import {InfoIcon} from "lucide-react";
-import {useSettings} from "../../contexts/settings.tsx";
+import {SerializationType, useSettings} from "../../contexts/settings.tsx";
 
 export type SettingsModalProps = {
     open: boolean;
     onClose: () => void;
 }
+
+const serializationOptions: SelectProps['options'] = [{
+    label: 'Binary',
+    value: SerializationType.BINARY,
+}, {
+    label: 'Decimal',
+    value: SerializationType.DECIMAL,
+}, {
+    label: 'Hexadecimal',
+    value: SerializationType.HEXADECIMAL
+}]
 
 export const SettingsModal = ({open, onClose}: SettingsModalProps) => {
     const {settings, setSetting} = useSettings();
@@ -44,23 +55,66 @@ export const SettingsModal = ({open, onClose}: SettingsModalProps) => {
                         ]}
                     />
                 </Form.Item>
-                {/*<Form.Item*/}
-                {/*    label="Option 1"*/}
-                {/*>*/}
-                {/*    <Select*/}
-                {/*        defaultValue="opt1"*/}
-                {/*        onChange={console.log}*/}
-                {/*        options={[*/}
-                {/*            {*/}
-                {/*                value: 'opt1', label: "Option 1",*/}
-                {/*            }, {*/}
-                {/*                value: 'opt2', label: "Option 2",*/}
-                {/*            }, {*/}
-                {/*                value: 'opt3', label: "Option 3",*/}
-                {/*            },*/}
-                {/*        ]}*/}
-                {/*    />*/}
-                {/*</Form.Item>*/}
+                <Form.Item
+                    label="Address serialization"
+                    help="How addresses are serialized in the entire application"
+                >
+                    <Select
+                        defaultValue={settings.addressSerialization}
+                        onChange={value => {
+                            setSetting('addressSerialization', value as SerializationType);
+                        }}
+                        options={serializationOptions}
+                    />
+                </Form.Item>
+                <Form.Item
+                    label="Tag serialization"
+                    help="How tags are serialized in the entire application"
+                >
+                    <Select
+                        defaultValue={settings.tagSerialization}
+                        onChange={value => {
+                            setSetting('tagSerialization', value as SerializationType);
+                        }}
+                        options={serializationOptions}
+                    />
+                </Form.Item>
+                <Form.Item
+                    label="Index serialization"
+                    help="How indices are serialized in the entire application"
+                >
+                    <Select
+                        defaultValue={settings.indexSerialization}
+                        onChange={value => {
+                            setSetting('indexSerialization', value as SerializationType);
+                        }}
+                        options={serializationOptions}
+                    />
+                </Form.Item>
+                <Form.Item
+                    label="Block offset serialization"
+                    help="How block offsets are serialized in the entire application"
+                >
+                    <Select
+                        defaultValue={settings.blockOffsetSerialization}
+                        onChange={value => {
+                            setSetting('blockOffsetSerialization', value as SerializationType);
+                        }}
+                        options={serializationOptions}
+                    />
+                </Form.Item>
+                <Form.Item
+                    label="Byte offset serialization"
+                    help="How byte offsets are serialized in the entire application"
+                >
+                    <Select
+                        defaultValue={settings.byteOffsetSerialization}
+                        onChange={value => {
+                            setSetting('byteOffsetSerialization', value as SerializationType);
+                        }}
+                        options={serializationOptions}
+                    />
+                </Form.Item>
                 {/*<Form.Item*/}
                 {/*    label="Option 1"*/}
                 {/*>*/}
