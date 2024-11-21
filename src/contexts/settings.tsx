@@ -19,6 +19,7 @@ export type Settings = {
 export type SettingsContextType = {
     settings: Settings;
     setSetting: <T extends keyof Settings>(setting: T, value: Settings[T]) => void;
+    resetSettings: () => void;
 }
 
 const initialSettings: Settings = {
@@ -54,7 +55,7 @@ export const SettingsProvider: FC<PropsWithChildren> = ({children}) => {
         localStorage.setItem('settings', JSON.stringify(settings));
     }, [settings]);
 
-    const _setSetting = <T extends keyof Settings>(setting: T, value: Settings[T]) => {
+    const setSetting = <T extends keyof Settings>(setting: T, value: Settings[T]) => {
         setSettings(s => ({
                 ...s,
                 [setting]: value,
@@ -62,7 +63,11 @@ export const SettingsProvider: FC<PropsWithChildren> = ({children}) => {
         ));
     };
 
-    return <SettingsContext.Provider value={{settings, setSetting: _setSetting}}>
+    const resetSettings = () => {
+        setSettings(initialSettings);
+    }
+
+    return <SettingsContext.Provider value={{settings, setSetting, resetSettings}}>
         {children}
     </SettingsContext.Provider>
 };

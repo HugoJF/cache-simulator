@@ -1,4 +1,4 @@
-import {Form, Modal, Select, SelectProps} from "antd";
+import {Button, Form, Modal, Select, SelectProps} from "antd";
 import {InfoIcon} from "lucide-react";
 import {SerializationType, useSettings} from "../../contexts/settings.tsx";
 import {formatTimeFromNs} from "../../helpers/number.ts";
@@ -21,9 +21,13 @@ const serializationOptions: SelectProps['options'] = [{
 }]
 
 export const SettingsModal = ({open, onClose}: SettingsModalProps) => {
-    const {settings, setSetting} = useSettings();
+    const {settings, setSetting, resetSettings} = useSettings();
 
     const [form] = Form.useForm();
+
+    function handleResetSettings() {
+        resetSettings();
+    }
 
     return <>
         <Modal
@@ -44,8 +48,8 @@ export const SettingsModal = ({open, onClose}: SettingsModalProps) => {
                     help="Simulation generates huge amounts of logs and may slow down the browser. Disable for better performance."
                 >
                     <Select
-                        defaultValue={String(settings.simulationLogs)}
-                        onChange={value => {
+                        value={String(settings.simulationLogs)}
+                            onChange={value => {
                             setSetting('simulationLogs', value === 'true');
                         }}
                         options={[
@@ -76,7 +80,7 @@ export const SettingsModal = ({open, onClose}: SettingsModalProps) => {
                     help="How addresses are serialized in the entire application"
                 >
                     <Select
-                        defaultValue={settings.addressSerialization}
+                        value={settings.addressSerialization}
                         onChange={value => {
                             setSetting('addressSerialization', value as SerializationType);
                         }}
@@ -88,7 +92,7 @@ export const SettingsModal = ({open, onClose}: SettingsModalProps) => {
                     help="How tags are serialized in the entire application"
                 >
                     <Select
-                        defaultValue={settings.tagSerialization}
+                        value={settings.tagSerialization}
                         onChange={value => {
                             setSetting('tagSerialization', value as SerializationType);
                         }}
@@ -100,7 +104,7 @@ export const SettingsModal = ({open, onClose}: SettingsModalProps) => {
                     help="How indices are serialized in the entire application"
                 >
                     <Select
-                        defaultValue={settings.indexSerialization}
+                        value={settings.indexSerialization}
                         onChange={value => {
                             setSetting('indexSerialization', value as SerializationType);
                         }}
@@ -112,7 +116,7 @@ export const SettingsModal = ({open, onClose}: SettingsModalProps) => {
                     help="How block offsets are serialized in the entire application"
                 >
                     <Select
-                        defaultValue={settings.blockOffsetSerialization}
+                        value={settings.blockOffsetSerialization}
                         onChange={value => {
                             setSetting('blockOffsetSerialization', value as SerializationType);
                         }}
@@ -124,7 +128,7 @@ export const SettingsModal = ({open, onClose}: SettingsModalProps) => {
                     help="How byte offsets are serialized in the entire application"
                 >
                     <Select
-                        defaultValue={settings.byteOffsetSerialization}
+                        value={settings.byteOffsetSerialization}
                         onChange={value => {
                             setSetting('byteOffsetSerialization', value as SerializationType);
                         }}
@@ -195,6 +199,8 @@ export const SettingsModal = ({open, onClose}: SettingsModalProps) => {
                     >Learn more about log generation</a>
                 </p>
             </div>
+
+            <Button onClick={handleResetSettings} className="w-full my-2">Reset settings to default</Button>
         </Modal>
     </>
 }
