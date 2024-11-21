@@ -1,6 +1,8 @@
 import {Form, Modal, Select, SelectProps} from "antd";
 import {InfoIcon} from "lucide-react";
 import {SerializationType, useSettings} from "../../contexts/settings.tsx";
+import {formatTimeFromNs} from "../../helpers/number.ts";
+import {DynamicSlider} from "../dynamic-slider";
 
 export type SettingsModalProps = {
     open: boolean;
@@ -20,7 +22,6 @@ const serializationOptions: SelectProps['options'] = [{
 
 export const SettingsModal = ({open, onClose}: SettingsModalProps) => {
     const {settings, setSetting} = useSettings();
-    // const [stepperInterval, setStepperInterval] = useState(30)
 
     const [form] = Form.useForm();
 
@@ -31,6 +32,7 @@ export const SettingsModal = ({open, onClose}: SettingsModalProps) => {
             onCancel={onClose}
             cancelButtonProps={{hidden: true}}
             okButtonProps={{hidden: true}}
+            maskClosable={false}
         >
             <Form
                 form={form}
@@ -53,6 +55,20 @@ export const SettingsModal = ({open, onClose}: SettingsModalProps) => {
                                 value: 'false', label: "Disabled",
                             },
                         ]}
+                    />
+                </Form.Item>
+                <Form.Item
+                    label={`Auto-stepper interval: ${formatTimeFromNs(Number(settings.autoStepperIntervalMs) * 1_000_000, 0)}`}
+                >
+                    <DynamicSlider
+                        min={1}
+                        max={1_000}
+                        value={Number(settings.autoStepperIntervalMs)}
+                        onChange={value => {
+                            setSetting('autoStepperIntervalMs', value);
+                        }}
+                        defaultValue={Number(settings.autoStepperIntervalMs)}
+                        tooltip={{open: false}}
                     />
                 </Form.Item>
                 <Form.Item

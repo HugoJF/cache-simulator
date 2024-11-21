@@ -9,7 +9,6 @@ export const DynamicSlider = ({value, max, onChange, ...rest}: DynamicSliderProp
 
     function internalOnChange(value: number) {
         onChange?.(value);
-        console.log(value)
     }
 
     function internalOnChangeComplete(value: number) {

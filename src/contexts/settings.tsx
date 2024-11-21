@@ -7,6 +7,7 @@ export enum SerializationType {
 }
 
 export type Settings = {
+    autoStepperIntervalMs: number;
     simulationLogs: boolean;
     addressSerialization: SerializationType;
     tagSerialization: SerializationType;
@@ -21,6 +22,7 @@ export type SettingsContextType = {
 }
 
 const initialSettings: Settings = {
+    autoStepperIntervalMs: 500,
     simulationLogs: true,
     addressSerialization: SerializationType.HEXADECIMAL,
     tagSerialization: SerializationType.HEXADECIMAL,
