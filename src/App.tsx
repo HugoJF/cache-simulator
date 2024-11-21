@@ -153,7 +153,7 @@ function App() {
                         } : undefined}
                     />
                 </div>
-                <div className="w-[20rem]">
+                <div className="w-[26rem]">
                     <CacheAccessHistory history={runner.buildHistory(selectedCacheLayer, 10) ?? []}/>
                 </div>
             </div>
