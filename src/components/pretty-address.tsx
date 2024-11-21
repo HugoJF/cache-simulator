@@ -26,8 +26,11 @@ export const PrettyAddress: FC<Props> = ({value, parameters}) => {
         <span title={getTitle('Index', address.index)}>
             {address.index.toString(2).padStart(indexSize, '0')}
         </span>
-        <span title={getTitle('Offset', address.offset)}>
-            {address.offset.toString(2).padStart(offsetSize, '0')}
+        <span title={getTitle('Block Offset', address.blockOffset)}>
+            {address.blockOffset.toString(2).padStart(offsetSize, '0')}
+        </span>
+        <span title={getTitle('Block Offset', address.blockOffset)}>
+            {address.byteOffset.toString(2).padStart(offsetSize, '0')}
         </span>
     </p>;
 }

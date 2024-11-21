@@ -66,7 +66,7 @@ export class CacheBlock {
         this.cache.writes++;
 
         // TODO assert offset is within bounds
-        const offset = Number(address.offset);
+        const offset = Number(address.blockOffset);
 
         this.data[offset] = data;
         // TODO implement write policies

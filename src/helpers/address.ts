@@ -16,16 +16,18 @@ export const bitExtract = (address: bigint, bits: bigint, offset: bigint) => {
 }
 
 export const bigintToAddress = (parameters: CacheParameters, address: bigint): Address => {
-    const bytesPerWord = parameters.wordSize / 8n;
-    const offsetSize = log2n(parameters.wordsPerBlock) + log2n(bytesPerWord);
+    const byteOffsetSize = log2n(parameters.wordSize / 8n);
+    const blockOffsetSize = log2n(parameters.wordsPerBlock);
     const indexSize = log2n(parameters.sets);
-    const tagShift = offsetSize + indexSize;
 
-    const offset = bitExtract(address, offsetSize, 0n);
-    const index = bitExtract(address, indexSize, offsetSize);
+    const tagShift = byteOffsetSize + blockOffsetSize + indexSize;
+
+    const byteOffset = bitExtract(address, byteOffsetSize, 0n);
+    const blockOffset = bitExtract(address, blockOffsetSize, byteOffsetSize);
+    const index = bitExtract(address, indexSize, blockOffsetSize + byteOffsetSize);
     const tag = bitExtract(address, ADDRESS_SIZE - tagShift, tagShift);
 
-    return new Address(address, tag, index, offset);
+    return new Address(address, tag, index, blockOffset, byteOffset);
 }
 
 export const blockAddressRange = (parameters: CacheParameters, set: CacheSet, block: CacheBlock) => {
