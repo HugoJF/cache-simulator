@@ -96,7 +96,7 @@ export const SettingsModal = ({open, onClose}: SettingsModalProps) => {
                     />
                 </Form.Item>
                 <Form.Item
-                    label="Index serialization"
+                    label="Set index serialization"
                     help="How indices are serialized in the entire application"
                 >
                     <Select

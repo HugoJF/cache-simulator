@@ -1,14 +1,15 @@
 import {CheckCircle2, XCircle} from "lucide-react"
 import {clsx} from "clsx";
 import {CacheAccess} from "../cache/cache-access.ts";
-import {BigIntToHex} from "./big-int-to-hex.tsx";
+import {Serialized} from "./serializers/serialized.tsx";
+import {ReactNode} from "react";
 
-function AddressPart({label, value, color}: { label: string; value: bigint; color: string }) {
+function AddressPart({label, value, color}: { label: string; value: ReactNode; color: string }) {
     return (
         <div className={`flex items-center ${color} rounded-lg px-2 py-1 shadow-sm gap-1`}>
             <span className="text-xs font-medium text-gray-700 uppercase tracking-wide">{label}:</span>
-            <span className="text-xs font-bold text-gray-700 uppercase tracking-wide">
-                <BigIntToHex value={value}/>
+            <span className="text-xs font-bold text-gray-700 tracking-wide">
+                {value}
             </span>
         </div>
     )
@@ -33,14 +34,26 @@ export function CacheAccessCard({access}: { access: CacheAccess }) {
                         </div>
                     </div>
                     <span className="text-sm font-mono">
-                        <BigIntToHex value={access.setAccess.address.raw}/>
+                        <Serialized.Address value={access.setAccess.address.raw}/>
                     </span>
                 </div>
                 <div className="mt-3 flex justify-end space-x-2">
                     {/*TODO parse the address*/}
-                    <AddressPart label="Tag" value={access.setAccess.address.tag} color="bg-blue-200"/>
-                    <AddressPart label="Set" value={BigInt(access.setAccess.address.index)} color="bg-red-200"/>
-                    <AddressPart label="Block" value={BigInt(access.setAccess.replacedIndex)} color="bg-green-200"/>
+                    <AddressPart
+                        color="bg-blue-200"
+                        label="Tag"
+                        value={<Serialized.Tag value={access.setAccess.address.tag}/>}
+                    />
+                    <AddressPart
+                        color="bg-red-200"
+                        label="Set"
+                        value={<Serialized.Index value={BigInt(access.setAccess.address.index)}/>}
+                    />
+                    <AddressPart
+                        color="bg-green-200"
+                        label="Block"
+                        value={<Serialized.BlockOffset value={BigInt(access.setAccess.replacedIndex)}/>}
+                    />
                 </div>
             </div>
         </div>

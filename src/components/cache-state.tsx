@@ -1,10 +1,10 @@
 import {useState} from 'react'
 import {Check, ChevronDown, ChevronRight, X} from "lucide-react"
 import {CacheSimulator} from "../cache/cache-simulator.ts";
-import {BigIntToHex} from "./big-int-to-hex.tsx";
 import {blockAddressRange} from "../helpers/address.ts";
 import {interleaveMap} from "../helpers/array.ts";
 import {clsx} from "clsx";
+import {Serialized} from "./serializers/serialized.tsx";
 
 export type CacheStatusProps = {
     cache: CacheSimulator;
@@ -90,13 +90,13 @@ export default function CacheState({cache, highlight}: CacheStatusProps) {
                                             )}
                                         </td>
                                         <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
-                                            <BigIntToHex value={block.tag}/>
+                                            <Serialized.Tag value={block.tag}/>
                                         </td>
                                         <td className="px-3 py-2 whitespace-nowrap text-sm text-gray-900">
                                             {
                                                 interleaveMap(
                                                     blockAddressRange(cache.parameters, set, block),
-                                                    (address, index) => <BigIntToHex
+                                                    (address, index) => <Serialized.Address
                                                         key={[address, index].join('-')}
                                                         value={address}
                                                     />,

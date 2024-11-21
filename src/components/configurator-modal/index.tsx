@@ -207,15 +207,15 @@ export const ConfiguratorModal = ({initialCaches, open, onCreate, onClose}: Conf
                             label="Cache Timing"
                         >
                             <Select
-                                defaultValue="simple"
+                                defaultValue="default"
                                 onChange={value => {
                                     setCustomCacheTiming(value === 'custom')
                                 }}
                                 options={[
                                     {
-                                        value: 'simple', label: <div className="flex items-center gap-1">
+                                        value: 'default', label: <div className="flex items-center gap-1">
                                             <Zap className="w-4"/>
-                                            <span>Simple</span>
+                                            <span>Default</span>
                                         </div>,
                                     },
                                     {

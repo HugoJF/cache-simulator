@@ -1,9 +1,9 @@
 import {clsx} from "clsx";
 import {BigNumber} from "../big-number.tsx";
-import {BigIntToHex} from "../big-int-to-hex.tsx";
 import {formatPercentage, formatTimeFromNs} from "../../helpers/number.ts";
 import {CacheAccess} from "../../cache/cache-access.ts";
 import {CacheSimulator} from "../../cache/cache-simulator.ts";
+import {Serialized} from "../serializers/serialized.tsx";
 
 export type StatusBarProps = {
     cache: CacheSimulator;
@@ -36,7 +36,7 @@ export const StatusBar = ({cache, history, cycle, instructions}: StatusBarProps)
         />
         <BigNumber
             key="address"
-            value={<BigIntToHex value={history.setAccess.address.raw}/>}
+            value={<Serialized.Address value={history.setAccess.address.raw}/>}
             description="Address"
         />
         <BigNumber
