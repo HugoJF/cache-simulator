@@ -51,6 +51,7 @@ export class CacheSimulator implements DataStore {
     read(raw: bigint): void {
         // TODO Address is shareable between caches with different parameters
         const address = bigintToAddress(this.parameters, raw);
+        console.log(`Parsing address 0x${address.raw.toString(16)}`, address);
         console.log(`Reading address 0x${address.raw.toString(16)} in set ${address.index}`);
 
         const set = this.getSetFromIndex(address.index);
