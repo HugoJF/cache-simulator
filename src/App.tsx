@@ -13,6 +13,7 @@ import {usePrograms} from "./contexts/programs.tsx";
 import {useCaches} from "./contexts/caches.tsx";
 import {Empty} from "./components/empty";
 import {useSetting} from "./contexts/settings.tsx";
+import {GlobalStatusBar} from "./components/global-status-bar";
 
 function App() {
     const [simulationLogs] = useSetting('simulationLogs');
@@ -120,24 +121,28 @@ function App() {
             onClose={() => setSettingsOpen(false)}
         />
 
+        <GlobalStatusBar
+            runner={runner}
+        />
+
         {runner.caches.map((_, index) => (
             runner.getLastHistoryFromLevel(index) && <StatusBar
-              key={index}
-              cache={runner.caches[index]}
-              history={runner.getLastHistoryFromLevel(index)!}
-              cycle={runner.lastSimulatedCycle}
-              instructions={instructions}
+                key={index}
+                cache={runner.caches[index]}
+                history={runner.getLastHistoryFromLevel(index)!}
+                cycle={runner.lastSimulatedCycle}
+                instructions={instructions}
             />
         ))}
 
         <main className="pt-4 container mx-auto">
             {Boolean(runner.buildHistory(0, 1)?.length) && <Tabs
-              defaultActiveKey={String(0)}
-              onChange={key => setSelectedCacheLayer(Number(key))}
-              items={runner.caches.map((cache) => ({
-                  label: `L${cache.getLevel()} Cache`,
-                  key: String(cache.getLevel() - 1),
-              }))}
+                defaultActiveKey={String(0)}
+                onChange={key => setSelectedCacheLayer(Number(key))}
+                items={runner.caches.map((cache) => ({
+                    label: `L${cache.getLevel()} Cache`,
+                    key: String(cache.getLevel() - 1),
+                }))}
             />}
 
             {!runner.buildHistory(0, 1)?.length && <Empty/>}

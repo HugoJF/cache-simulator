@@ -1,30 +1,30 @@
 import {Serializer, SerializerProps} from "./serializer.tsx";
 import {useSettings} from "../../contexts/settings.tsx";
 
-const SerializedAddress = ({value, serialization}: SerializerProps) => {
+const SerializedAddress = ({serialization, ...rest}: SerializerProps) => {
     const {settings} = useSettings();
 
-    return <Serializer value={value} serialization={serialization || settings.addressSerialization}/>
+    return <Serializer serialization={serialization || settings.addressSerialization} {...rest}/>
 }
-const SerializedTag = ({value, serialization}: SerializerProps) => {
+const SerializedTag = ({serialization, ...rest}: SerializerProps) => {
     const {settings} = useSettings();
 
-    return <Serializer value={value} serialization={serialization || settings.tagSerialization}/>
+    return <Serializer serialization={serialization || settings.tagSerialization} {...rest} />
 }
-const SerializedIndex = ({value, serialization}: SerializerProps) => {
+const SerializedIndex = ({serialization, ...rest}: SerializerProps) => {
     const {settings} = useSettings();
 
-    return <Serializer value={value} serialization={serialization || settings.indexSerialization}/>
+    return <Serializer serialization={serialization || settings.indexSerialization} {...rest}/>
 }
-const SerializedBlockOffset = ({value, serialization}: SerializerProps) => {
+const SerializedBlockOffset = ({serialization, ...rest}: SerializerProps) => {
     const {settings} = useSettings();
 
-    return <Serializer value={value} serialization={serialization || settings.blockOffsetSerialization}/>
+    return <Serializer serialization={serialization || settings.blockOffsetSerialization} {...rest}/>
 }
-const SerializedByteOffset = ({value, serialization}: SerializerProps) => {
+const SerializedByteOffset = ({serialization, ...rest}: SerializerProps) => {
     const {settings} = useSettings();
 
-    return <Serializer value={value} serialization={serialization || settings.byteOffsetSerialization}/>
+    return <Serializer serialization={serialization || settings.byteOffsetSerialization} {...rest}/>
 }
 
 export const Serialized = {

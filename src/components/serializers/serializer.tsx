@@ -3,6 +3,8 @@ import {SerializationType} from "../../contexts/settings.tsx";
 export type SerializerProps = {
     value: bigint;
     serialization?: SerializationType;
+    padStartLength?: number;
+    padStart?: string;
 }
 
 type SerializationConfig = {
@@ -16,8 +18,19 @@ const configs: Record<SerializationType, SerializationConfig> = {
     [SerializationType.BINARY]: {radix: 2, prefix: '0b'}
 }
 
-export const Serializer = ({value, serialization = SerializationType.HEXADECIMAL}: SerializerProps) => {
+export const Serializer = ({
+                               value,
+                               padStartLength,
+                               padStart,
+                               serialization = SerializationType.HEXADECIMAL
+                           }: SerializerProps) => {
     const config = configs[serialization];
 
-    return <>{config.prefix}{value.toString(config.radix).toUpperCase()}{config.suffix}</>
+    const serialized = value
+        .toString(config.radix)
+        .toUpperCase()
+        .padStart(padStartLength ?? 0, padStart ?? ' ');
+    const result = [config.prefix, serialized, config.suffix].join('');
+
+    return <span className="font-mono">{result}</span>
 }
