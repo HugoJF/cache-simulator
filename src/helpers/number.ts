@@ -3,7 +3,7 @@ export const formatPercentage = (value: number) => {
 }
 
 export const numberToSuffixed = (value: number) => {
-    const units = [null, 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'];
+    const units = ['B', 'K', 'M', 'G', 'T', 'P', 'E', 'Z', 'Y'];
     let unitIndex = 0;
     let remaining = value;
     while (remaining >= 1024 && unitIndex < units.length - 1) {
@@ -22,7 +22,7 @@ export const formatNumber = (value: number, decimals = 0) => {
 
 export const formatCapacity = (value: bigint, decimals = 0) => {
     const [remaining, unit] = numberToSuffixed(Number(value));
-    return `${remaining.toFixed(decimals)} ${unit ?? 'bytes'}B`;
+    return `${remaining.toFixed(decimals)} ${unit}`;
 }
 
 // TODO this can be improved greatly
