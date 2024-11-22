@@ -1,6 +1,6 @@
 import {Radio, RadioProps} from "antd";
 import {formatNumber, range} from "../../helpers/number.ts";
-import {useState} from "react";
+import {useEffect, useState} from "react";
 
 type NewDynamicLogRadioProps = {
     onChange: (value: number) => void;
@@ -25,6 +25,16 @@ export const DynamicLogRadio = ({
     const [upperRange, setUpperRange] = useState(getUpperRange(logValue));
 
     const values = range(lowerRange, upperRange, true);
+
+    // TODO: avoid having to use this
+    useEffect(() => {
+        if (logValue > lowerRange && logValue < upperRange) {
+            return;
+        }
+
+        setLowerRange(getLowerRange(logValue));
+        setUpperRange(getUpperRange(logValue));
+    }, [value, lowerRange, upperRange]);
 
     function getLowerRange(currentValue: number) {
         return Math.max(min, currentValue - options);
