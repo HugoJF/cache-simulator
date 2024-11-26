@@ -39,7 +39,7 @@ export const blockAddressRange = (parameters: CacheParameters, set: CacheSet, bl
     const part2 = BigInt(set.index) << offsetSize;
 
     const baseAddress = part1 | part2;
-    const endAddress = baseAddress + parameters.wordsPerBlock;
+    const endAddress = baseAddress + bytesPerWord;
 
     return [baseAddress, endAddress - 1n];
 }
