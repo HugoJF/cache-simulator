@@ -20,7 +20,7 @@ export const FileManagerModal = ({open, onClose}: FileManagerModalProps) => {
             const raw = await file.text();
             const json = JSON.parse(raw)
             // TODO validate the parsed content
-            const instructions = json.map((instruction: Record<string, string>) => instruction.startAddress)
+            const instructions = json.map((instruction: Record<string, string>) => instruction)
             setPrograms({...programs, [file.name]: instructions})
         },
     };
