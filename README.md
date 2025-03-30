@@ -2,6 +2,12 @@
 
 This project was bootstrapped with [Vite](https://vite.dev/guide/).
 
+## Installing dependencies
+
+This project uses NPM as the package manager, so make sure you have it installed on your machine before proceeding.
+
+Run `npm install` to install all dependencies.
+
 ## Available Scripts
 
 In the project directory, you can run:
@@ -21,7 +27,7 @@ See the section about [running tests](https://vitest.dev/guide/) for more inform
 
 ### `npm run build`
 
-Builds the app for production to the `build` folder.\
+Builds the app for production to the `dist` folder.\
 It correctly bundles React in production mode and optimizes the build for the best performance.
 
 The build is minified and the filenames include the hashes.\
