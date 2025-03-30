@@ -2,19 +2,31 @@ import {clsx} from "clsx";
 import {BigNumber} from "../big-number.tsx";
 import {formatPercentage, formatTimeFromNs} from "../../helpers/number.ts";
 import {CacheAccess} from "../../cache/cache-access.ts";
-import {CacheSimulator} from "../../cache/cache-simulator.ts";
 import {Serialized} from "../serializers/serialized.tsx";
+import {CacheRunner} from "../../cache/cache-runner.ts";
 
 export type StatusBarProps = {
-    cache: CacheSimulator;
+    runner: CacheRunner;
+    cacheIndex: number;
     history: CacheAccess;
     cycle: number;
     instructions: bigint[];
 }
-export const StatusBar = ({cache, history, cycle}: StatusBarProps) => {
+export const StatusBar = ({runner, cacheIndex, history, cycle}: StatusBarProps) => {
+    const caches = runner.caches;
+    const cache = caches[cacheIndex]
+
     const hitRate = Number(cache.hits) / Number(cache.reads);
-    const missRate = 1 - hitRate;
-    const averageAccessTime = Number(cache.parameters.hitTime) + Number(cache.parameters.missPenalty) * missRate
+
+    const getAverageAccessTime = (cacheIndex = 0): number => {
+        const cache = caches[cacheIndex];
+        const hitRate = Number(cache.hits) / Number(cache.reads);
+        const missRate = 1 - hitRate;
+
+        const penaltyTime = caches[cacheIndex + 1] ? getAverageAccessTime(cacheIndex + 1) : Number(cache.parameters.missPenalty);
+
+        return Number(cache.parameters.hitTime) + penaltyTime * missRate;
+    }
 
     return <div
         className={clsx({
@@ -60,7 +72,7 @@ export const StatusBar = ({cache, history, cycle}: StatusBarProps) => {
             <BigNumber
                 key="average-access-time"
                 description="Average access time"
-                value={formatTimeFromNs(averageAccessTime)}
+                value={formatTimeFromNs(getAverageAccessTime(cacheIndex))}
             />
             <BigNumber
                 key="result"

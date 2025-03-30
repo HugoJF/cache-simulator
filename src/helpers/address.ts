@@ -27,6 +27,8 @@ export const bigintToAddress = (parameters: CacheParameters, address: bigint): A
     const index = bitExtract(address, indexSize, blockOffsetSize + byteOffsetSize);
     const tag = bitExtract(address, ADDRESS_SIZE - tagShift, tagShift);
 
+    console.log(`Address sizes byte-offset=${byteOffsetSize}, block-offset=${blockOffsetSize} index=${indexSize}, tag=${ADDRESS_SIZE - tagShift}`)
+
     return new Address(address, tag, index, blockOffset, byteOffset);
 }
 

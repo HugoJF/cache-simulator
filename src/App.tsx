@@ -128,7 +128,8 @@ function App() {
         {runner.caches.map((_, index) => (
             runner.getLastHistoryFromLevel(index) && <StatusBar
                 key={index}
-                cache={runner.caches[index]}
+                runner={runner}
+                cacheIndex={index}
                 history={runner.getLastHistoryFromLevel(index)!}
                 cycle={runner.lastSimulatedCycle}
                 instructions={instructions}
