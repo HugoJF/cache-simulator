@@ -1,6 +1,8 @@
 export class LazyArray<T> {
     public readonly data: (T|undefined)[];
 
+    public initialized = 0;
+
     constructor(public readonly length: number, private initializer: (index: number) => T) {
         this.data = [];
     }
@@ -11,6 +13,7 @@ export class LazyArray<T> {
         }
 
         if (!this.data[index]) {
+            this.initialized++;
             this.data[index] = this.initializer(index);
         }
 
