@@ -137,7 +137,7 @@ export const Header: FC<HeaderProps> = ({
                     placement="bottom"
                 >
                     <Button icon={<Gear size={16}/>}>
-                        Manage
+                        Caches
                     </Button>
                 </Dropdown>
                 <Tooltip title="Program to simulate">
@@ -157,7 +157,7 @@ export const Header: FC<HeaderProps> = ({
                     onClick={onFileManagerClick}
                     icon={<Gear size={16}/>}
                 >
-                    Manage
+                    Programs
                 </Button>
             </div>
 
