@@ -1,4 +1,4 @@
-import {createContext, FC, PropsWithChildren, useContext, useState} from "react";
+import {createContext, FC, PropsWithChildren, useContext, useEffect, useState} from "react";
 import {CacheParameters} from "../cache/cache-parameters.ts";
 import {ADDRESS_SIZE} from "../constants/arch.ts";
 
@@ -7,49 +7,70 @@ export type CacheContextType = {
     setCaches: (caches: CacheParameters[][]) => void;
 }
 
-const initialCaches: CacheParameters[][] = [
-    [{
-        sets: 32n,
-        blocksPerSet: 2n,
-        wordsPerBlock: 8n,
-        wordSize: ADDRESS_SIZE,
-        hitTime: 1n,
-        missPenalty: 10n,
-        policy: 'LRU',
-    }],
-    [{
-        sets: 64n,
-        blocksPerSet: 1n,
-        wordsPerBlock: 64n,
-        wordSize: ADDRESS_SIZE,
-        hitTime: 1n,
-        missPenalty: 10n,
-        policy: 'LRU',
-    }],
-    [{
-        sets: 1n,
-        blocksPerSet: 16n,
-        wordsPerBlock: 16n,
-        wordSize: ADDRESS_SIZE,
-        hitTime: 1n,
-        missPenalty: 10n,
-        policy: 'LRU',
-    }, {
-        sets: 32n,
-        blocksPerSet: 32n,
-        wordsPerBlock: 32n,
-        wordSize: ADDRESS_SIZE,
-        hitTime: 1n,
-        missPenalty: 10n,
-        policy: 'LRU',
-    }],
-]
+const LOCAL_STORAGE_KEY = "cacheSimulatorCaches";
+
+const serializeCaches = (caches: CacheParameters[][]): string => {
+    return JSON.stringify(caches, (key, value) =>
+        typeof value === "bigint" ? value.toString() + "n" : value
+    );
+};
+
+const deserializeCaches = (data: string | null): CacheParameters[][] | null => {
+    return data
+        ? JSON.parse(data, (key, value) =>
+            typeof value === "string" && value.endsWith("n") ? BigInt(value.slice(0, -1)) : value
+        )
+        : null;
+};
+
+const initialCaches: CacheParameters[][] =
+    deserializeCaches(localStorage.getItem(LOCAL_STORAGE_KEY)) || [
+        [{
+            sets: 32n,
+            blocksPerSet: 2n,
+            wordsPerBlock: 8n,
+            wordSize: ADDRESS_SIZE,
+            hitTime: 1n,
+            missPenalty: 10n,
+            policy: 'LRU',
+        }],
+        [{
+            sets: 64n,
+            blocksPerSet: 1n,
+            wordsPerBlock: 64n,
+            wordSize: ADDRESS_SIZE,
+            hitTime: 1n,
+            missPenalty: 10n,
+            policy: 'LRU',
+        }],
+        [{
+            sets: 1n,
+            blocksPerSet: 16n,
+            wordsPerBlock: 16n,
+            wordSize: ADDRESS_SIZE,
+            hitTime: 1n,
+            missPenalty: 10n,
+            policy: 'LRU',
+        }, {
+            sets: 32n,
+            blocksPerSet: 32n,
+            wordsPerBlock: 32n,
+            wordSize: ADDRESS_SIZE,
+            hitTime: 1n,
+            missPenalty: 10n,
+            policy: 'LRU',
+        }],
+    ];
 
 export const CacheContext = createContext<CacheContextType>({} as CacheContextType);
 export const useCaches = () => useContext(CacheContext);
 
 export const CachesProvider: FC<PropsWithChildren> = ({children}) => {
     const [caches, setCaches] = useState<CacheParameters[][]>(initialCaches);
+
+    useEffect(() => {
+        localStorage.setItem(LOCAL_STORAGE_KEY, serializeCaches(caches));
+    }, [caches]);
 
     const _setCaches = (caches: CacheParameters[][]) => {
         setCaches(caches);
