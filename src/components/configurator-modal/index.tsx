@@ -175,26 +175,26 @@ export const ConfiguratorModal = ({initialCaches, open, onCreate, onClose}: Conf
                             label="Replacement Policy"
                         >
                             <Select
-                                defaultValue="lru"
+                                defaultValue="LRU"
                                 onChange={value => {
                                     updateCache(selectedCache, 'policy', value as 'LRU' | 'FIFO')
                                 }}
                                 options={[
                                     {
-                                        value: 'lru', label: <div className="flex items-center gap-1">
+                                        value: 'LRU', label: <div className="flex items-center gap-1">
                                             <Clock className="w-4"/>
                                             <span>LRU (Least Recently Used)</span>
                                         </div>,
                                     },
                                     {
-                                        value: 'fifo',
+                                        value: 'FIFO',
                                         label: <div className="flex items-center gap-1">
                                             <ListRestart className="w-4"/>
                                             <span>FIFO (First In, First Out)</span>
                                         </div>,
                                     },
                                     {
-                                        value: 'random',
+                                        value: 'RANDOM',
                                         label: <div className="flex items-center gap-1">
                                             <Shuffle className="w-4"/>
                                             <span>Random</span>
