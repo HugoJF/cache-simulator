@@ -81,12 +81,12 @@ export class CacheSet {
             return [invalidBlock, ReplacementReason.Invalid];
         }
 
-        if (this.cache.parameters.policy === 'LRU') {
+        if (this.cache.parameters.policy.toUpperCase() === 'LRU') {
             // TODO why undefined is returned?
             return [this.getLruReplacementBlock() as CacheBlock, ReplacementReason.Lru];
         }
 
-        if (this.cache.parameters.policy === 'FIFO') {
+        if (this.cache.parameters.policy.toUpperCase() === 'FIFO') {
             // TODO why undefined is returned?
             return [this.getFifoReplacementBlock() as CacheBlock, ReplacementReason.Fifo];
         }
