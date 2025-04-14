@@ -82,7 +82,7 @@ export const Header: FC<HeaderProps> = ({
             onClose={() => setConfiguratorVisible(false)}
         />
         <header className="flex pl-4 gap-8 items-center bg-gray-900 text-white">
-            <h1 className="font-black uppercase">CacheSim</h1>
+            <h1 className="font-black uppercase">CacheLab</h1>
             <div className="flex-grow flex gap-4">
                 <Tooltip title="Cache configuration">
                     <Select
