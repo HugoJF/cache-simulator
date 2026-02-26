@@ -1,40 +1,38 @@
-# Getting Started
+# Cache Simulator
 
-This project was bootstrapped with [Vite](https://vite.dev/guide/).
+Cache simulator for education purposes
 
-## Installing dependencies
+## Overview
 
-This project uses NPM as the package manager, so make sure you have it installed on your machine before proceeding.
+- Type: `project`
+- Stack: `TypeScript, React`
+- Visibility: `Public`
+- Source: `Original repository`
+- Last commit: `2025-04-14`
+- Status: Active/maintained as available.
 
-Run `npm install` to install all dependencies.
+## Requirements
 
-## Available Scripts
+- Node.js 18+
+- npm
 
-In the project directory, you can run:
+## Getting Started
 
-### `npm run dev`
+1. Clone the repository.
+2. Install dependencies:
 
-Runs the app in the development mode.\
-Open [http://localhost:5173](http://localhost:5173) to view it in the browser.
+```bash
+npm install
+```
+3. Start development server:
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+```bash
+npm run dev
+```
 
-### `npm run test`
+## Notes
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://vitest.dev/guide/) for more information.
+- This README was refreshed to provide a practical project baseline.
+- Update setup commands if your workflow differs from the defaults above.
 
-### `npm run build`
-
-Builds the app for production to the `dist` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-## Learn More
-
-You can learn more in the [Vite documentation](https://vite.dev/guide/).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+_Generated on 2026-02-26._
